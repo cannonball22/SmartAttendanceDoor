@@ -1,0 +1,75 @@
+name: smart_attendance_door
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+##SECTION --Dependencies
+dependencies:
+  flutter:
+    sdk: flutter
+
+  ## t2 -- Presentation
+  loading_animation_widget: ^1.2.0+4
+  cached_network_image: ^3.2.3
+  flutter_svg: ^2.0.5
+  flutter_icons_plus: ^1.0.3
+  flex_color_scheme: ^7.0.4
+  octo_image: ^2.0.0
+  animated_text_kit: ^4.2.2
+  font_awesome_flutter: ^10.7.0
+  rating_dialog: ^2.0.4
+  flutter_easyloading: ^3.0.5
+  flutter_snackbar_plus: ^0.5.0
+  auto_animated_list: ^1.0.4
+  solid_bottom_sheet: ^0.1.10
+  theme_manager: ^2.0.4
+  flutter_zoom_drawer: ^3.0.4+1
+  multi_dropdown: ^3.0.0
+  ## t2 -- Providers
+  streaming_shared_preferences: ^2.0.0
+  cloud_firestore: ^5.0.2
+  firebase_database: ^11.0.2
+
+  ## t2 -- Services
+  flutter_localizations:
+    sdk: flutter
+  flutter_dotenv: ^5.0.2
+  logger: ^2.3.0
+  min_id: ^1.1.0
+  intl: ^0.19.0
+  form_controller: ^0.8.4
+  firebase_crashlytics: ^4.0.2
+  permission_handler: ^11.3.1
+  flutter_network_connectivity: ^0.0.6
+  sentry_flutter: ^8.3.0
+  dio: ^5.0.0
+  google_fonts: ^6.2.1
+  air_quality: ^4.0.0
+  weather: ^3.1.1
+  ## t2 -- Firebase
+  #  firebase: ^9.0.2
+  firebase_auth: ^5.1.1
+  firebase_storage: ^12.1.0
+  geolocator: ^12.0.0
+  geocoding: ^3.0.0
+  syncfusion_flutter_gauges: ^26.1.39
+  syncfusion_flutter_charts: ^26.1.39
+  faker: ^2.1.0
+  image_picker: ^1.0.4
+
+##!SECTION --Development Dependencies
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - dev.env
+    - prod.env
