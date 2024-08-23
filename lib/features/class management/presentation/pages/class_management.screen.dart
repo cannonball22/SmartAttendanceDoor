@@ -20,9 +20,8 @@ class _ClassManagementScreenState extends State<ClassManagementScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Class Management",
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,
         actions: [

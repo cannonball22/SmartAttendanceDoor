@@ -7,6 +7,7 @@ import 'package:smart_attendance_door/Data/Repositories/attendance.repo.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
 import 'package:smart_attendance_door/core/Providers/src/condition_model.dart';
 
+import '../../../../Data/Model/Student/student.model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 import '../widgets/student_attendance.dart';
 
@@ -41,7 +42,9 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
   //t2 --State
   Class? selectedClass;
   DateTime? selectedDate;
-
+  List<Class?>? classes;
+  late List<Student> students;
+  bool isLoaded= false;
   //t2 --State
   //
   //t2 --Constants
@@ -55,7 +58,12 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
     //SECTION - State Variables initializations & Listeners
     //t2 --Controllers & Listeners
     _formController = FormController();
-
+     ClassRepo().readAll().then((val){
+       setState(() {
+         classes = val;
+         isLoaded = true;
+       });
+     });
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -119,14 +127,11 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
 
     //SECTION - Build Return
     return Scaffold(
-      body: FutureBuilder(
-          future: ClassRepo().readAll(),
-          builder: (context, classesSnapshot) {
-            if (classesSnapshot.connectionState == ConnectionState.done &&
-                classesSnapshot.hasData &&
-                classesSnapshot.data != null &&
-                classesSnapshot.data!.isNotEmpty) {
-              return Column(
+      appBar: AppBar(
+        title: const Text("Students Attendance"),
+        centerTitle: true,
+      ),
+      body: isLoaded ?  Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -138,7 +143,7 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                             hintText: "Select Class",
                             labelText: "Class",
                             value: selectedClass,
-                            items: classesSnapshot.data!
+                            items: classes!
                                 .map(
                                   (classItem) => DropdownMenuItem<Class>(
                                     value: classItem,
@@ -152,12 +157,15 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                                 )
                                 .toList(),
                             onChanged: (Class? newValue) {
-                              selectedClass = newValue;
+                              setState(() {
+                                selectedClass = newValue;
 
-                              if (selectedClass != null &&
-                                  selectedDate != null) {
-                                setState(() {});
-                              }
+                              });
+                              //
+                              // if (selectedClass != null &&
+                              //     selectedDate != null) {
+                              //   setState(() {});
+                              // }
                             },
                           ),
                         ),
@@ -166,6 +174,7 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                         ),
                         Expanded(
                           child: TextFormField(
+                            enabled: selectedClass != null ? true : false,
                             controller:
                                 _formController.controller("dateOfBirth"),
                             decoration: const InputDecoration(
@@ -174,7 +183,23 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                               border: OutlineInputBorder(),
                             ),
                             readOnly: true,
-                            onTap: () => _selectDate(context),
+                            onTap: () async {
+                              selectedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate:selectedClass!.startSemesterDate,
+                                lastDate: selectedClass!.endSemesterDate,
+                              );
+                              if (selectedDate != null && selectedDate != DateTime.now()) {
+                                _formController.controller("dateOfBirth").text =
+                                "${selectedDate?.month}/${selectedDate?.day}/${selectedDate?.year}";
+
+                                if (selectedClass != null && selectedDate != null) {
+                                  print("got called from fun");
+                                  setState(() {});
+                                }
+                              }
+                            },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Date cannot be empty';
@@ -232,6 +257,8 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                                       "Error while getting the attendance"),
                                 );
                               }
+                              print(" attendanceSnapshot.data? ${ attendanceSnapshot.data![0]?.date}");
+                              print("selectedDate: $selectedDate");
                               List<Attendance?>? attendanceRecords =
                                   attendanceSnapshot.data?.where((e) {
                                 if (e is Attendance) {
@@ -239,7 +266,24 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                                 }
                                 return false;
                               }).toList();
+                              List<String> existingStudentIds = attendanceRecords?.map((e) => e!.studentId).toList() ?? [];
 
+                              // Iterate over each student ID in StudentListIds
+                              for (String studentId in selectedClass!.studentIds) {
+                                if (!existingStudentIds.contains(studentId)) {
+                                  // Create new Attendance object for the studentId
+                                  Attendance newAttendance = Attendance(
+                                    id: studentId, // Your logic to generate or assign the ID
+                                    attendance: false, // Or your desired default value
+                                    studentId: studentId,
+                                    classId: selectedClass!.id, // Your class ID
+                                    date: DateTime.now(),
+                                  );
+
+                                  // Add newAttendance to your attendance list
+                                  attendanceRecords?.add(newAttendance);
+                                }
+                              }
                               if (attendanceRecords == null ||
                                   attendanceRecords.isEmpty) {
                                 return const Center(
@@ -292,12 +336,12 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                           },
                         ),
                 ],
-              );
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
+              ) : const Center(
+    child: CircularProgressIndicator(),
+    ),
+
+
+
     );
     //!SECTION
   }

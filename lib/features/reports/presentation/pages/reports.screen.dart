@@ -1,11 +1,21 @@
 //t2 Core Packages Imports
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:share_plus/share_plus.dart';
 import 'package:smart_attendance_door/Data/Model/Student/student.model.dart';
-import 'package:smart_attendance_door/Data/Repositories/grade.repo.dart';
+import 'package:smart_attendance_door/Data/Repositories/attendance.repo.dart';
+import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
 import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
 import 'package:smart_attendance_door/core/Providers/src/condition_model.dart';
 
+import '../../../../Data/Model/Attendance Report/attendance_report.model.dart';
+import '../../../../Data/Model/Attendance/attendance.model.dart';
+import '../../../../Data/Model/Class/Class.model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
+import '../widgets/report_summary_card.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -32,6 +42,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   //
   //t2 --State
   Student? selectedStudent;
+  List<AttendanceReport> attendanceReport = [];
 
   //t2 --State
   //
@@ -67,6 +78,131 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   //SECTION - Stateless functions
   //!SECTION
+  Future<List<Class?>> readAllClasses(Set<String> classesIDs) async {
+    List<Class?> classes = [];
+    for (String id in classesIDs) {
+      classes.add(await ClassRepo().readSingle(id));
+    }
+    return classes;
+  }
+
+  Future<void> sendPdfToWhatsApp(String filePath) async {
+    try {
+      // Share the PDF file
+      await Share.shareXFiles([XFile(filePath)],
+          text: 'Here is the attendance record');
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  int countDaysExcludingFridays(DateTime startDate, DateTime endDate) {
+    if (startDate.isAfter(endDate)) {
+      throw ArgumentError('startDate must be before endDate');
+    }
+
+    int count = 0;
+    DateTime date = startDate;
+
+    while (date.isBefore(endDate.add(const Duration(days: 1)))) {
+      if (date.weekday != DateTime.friday) {
+        count++;
+      }
+      date = date.add(const Duration(days: 1));
+    }
+
+    return count;
+  }
+
+  int countAttendanceByClassId(attendanceList, currentClass) {
+    return attendanceList
+            ?.where((attendance) => attendance?.classId == currentClass?.id)
+            .length ??
+        0;
+  }
+
+  pw.Widget buildAttendanceTable(List<AttendanceReport> reports) {
+    final data = [
+      ['Class ID', 'Class Name - Subject', 'Attendance'],
+      for (var report in reports)
+        [
+          report.classId,
+          report.className,
+          "${report.attendance.truncate()} %",
+        ],
+    ];
+
+    return pw.TableHelper.fromTextArray(
+      headers: data[0],
+      data: data.sublist(1),
+    );
+  }
+
+  Future<String> generatePdf() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Text(
+                'Attendance Records',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              buildAttendanceTable(attendanceReport),
+            ],
+          );
+        },
+      ),
+    );
+
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath =
+        '${directory.path}/attendance_records-${selectedStudent?.name}-${DateTime.now()}.pdf';
+    final file = File(filePath);
+    await file.writeAsBytes(await pdf.save());
+    return filePath;
+  }
+
+  void generateAttendanceReports(
+      List<Class?>? classes, List<Attendance?>? attendanceSnapshot) {
+    if (classes == null || attendanceSnapshot == null) {
+      print("Classes or attendance snapshot is null.");
+      return;
+    }
+
+    for (Class? currentClass in classes) {
+      if (currentClass == null) continue; // Skip null classes
+
+      final double attendancePercentage =
+          (attendanceSnapshot.isEmpty || currentClass == null)
+              ? 0
+              : (countAttendanceByClassId(attendanceSnapshot, currentClass) /
+                      countDaysExcludingFridays(
+                        currentClass.startSemesterDate,
+                        DateTime.now().isAfter(currentClass.endSemesterDate)
+                            ? currentClass.endSemesterDate
+                            : DateTime.now(),
+                      ) *
+                      100)
+                  .truncateToDouble();
+
+      attendanceReport.add(
+        AttendanceReport(
+          classId: currentClass.id,
+          className: currentClass.name,
+          attendance: attendancePercentage,
+        ),
+      );
+    }
+
+    print("attendanceReport: $attendanceReport");
+  }
 
   //SECTION - Action Callbacks
   //!SECTION
@@ -75,8 +211,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     //SECTION - Build Setup
     //t2 -Values
-    double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
+    // double w = MediaQuery.of(context).size.width;
+    // double h = MediaQuery.of(context).size.height;
     //t2 -Values
     //
     //t2 -Widgets
@@ -95,7 +231,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         actions: selectedStudent != null
             ? [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    String filePath = await generatePdf();
+                    sendPdfToWhatsApp(filePath);
+                  },
                   icon: const Icon(Icons.picture_as_pdf),
                 ),
               ]
@@ -184,149 +323,70 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             ),
                           )
                         : FutureBuilder(
-                            future: GradeRepo().readAllWhere([
+                            future: AttendanceRepo().readAllWhere([
                               QueryCondition.equals(
                                   field: "studentId",
                                   value: selectedStudent!.id)
                             ]),
-                            builder: (context, gradesSnapshot) {
-                              if (gradesSnapshot.connectionState ==
+                            builder: (context, attendanceSnapshot) {
+                              if (attendanceSnapshot.connectionState ==
                                   ConnectionState.done) {
-                                if (gradesSnapshot.hasError) {
+                                if (attendanceSnapshot.hasError) {
                                   return const Center(
-                                    child: Text("Error loading grades!"),
+                                    child: Text("Error loading attendance!"),
                                   );
                                 }
-                                if (!gradesSnapshot.hasData ||
-                                    gradesSnapshot.data == null ||
-                                    gradesSnapshot.data!.isEmpty) {
+                                if (!attendanceSnapshot.hasData ||
+                                    attendanceSnapshot.data == null ||
+                                    attendanceSnapshot.data!.isEmpty) {
                                   return const Center(
                                     child: Text(
-                                        "No available grades for this student"),
+                                        "No available attendance records for this student"),
                                   );
                                 }
-                                if (gradesSnapshot.hasData) {
-                                  return Column(
-                                      children: List.generate(
-                                          gradesSnapshot.data!.length,
-                                          (index) => Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 16.0),
-                                                child: Container(
-                                                  decoration: ShapeDecoration(
-                                                    color:
-                                                        const Color(0xFFF6FAF7),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: const BorderSide(
-                                                          width: 1,
-                                                          color: Color(
-                                                              0xFFD0C3CC)),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16),
-                                                    ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.all(16),
-                                                  child: Column(
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(16.0),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              '${gradesSnapshot.data![index]!.subject.name}:',
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Color(
-                                                                    0xFF4D444C),
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                letterSpacing:
-                                                                    0.10,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              "${((gradesSnapshot.data?[index]?.finalGrade ?? 0) + (gradesSnapshot.data?[index]?.midtermGrade ?? 0)) / 70 * 100} %",
-                                                              style: TextStyle(
-                                                                color: Color(
-                                                                    0xFF4D444C),
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                letterSpacing:
-                                                                    0.10,
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding: EdgeInsets.all(
-                                                            16.0),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            const Text(
-                                                              'Teacher:',
-                                                              style: TextStyle(
-                                                                color: Color(
-                                                                    0xFF4D444C),
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                letterSpacing:
-                                                                    0.10,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              "Mr. ${gradesSnapshot.data?[index]?.teacherName}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Color(
-                                                                    0xFF4D444C),
-                                                                fontSize: 14,
-                                                                fontFamily:
-                                                                    'Roboto',
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                letterSpacing:
-                                                                    0.10,
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
+                                if (attendanceSnapshot.hasData) {
+                                  Set<String> classIdsSet = {};
+                                  for (var record in attendanceSnapshot.data!) {
+                                    if (record is Attendance) {
+                                      classIdsSet.add(record.classId);
+                                    }
+                                  }
+
+                                  return FutureBuilder(
+                                      future: readAllClasses(classIdsSet),
+                                      builder: (context, classesSnapshot) {
+                                        if (classesSnapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          if (classesSnapshot.hasError) {
+                                            return const Text(
+                                                "Error Loading Data");
+                                          }
+                                          if (classesSnapshot.hasData) {
+                                            generateAttendanceReports(
+                                                classesSnapshot.data,
+                                                attendanceSnapshot.data);
+                                            return Column(
+                                              children: List.generate(
+                                                attendanceReport.length,
+                                                (index) => ReportSummaryCard(
+                                                  attendanceReport:
+                                                      attendanceReport[index],
                                                 ),
-                                              )));
+                                              ),
+                                            );
+                                          }
+                                        }
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      });
                                 }
                               }
                               return const Center(
                                 child: CircularProgressIndicator(),
                               );
-                            })
+                            },
+                          )
                   ],
                 ),
               );

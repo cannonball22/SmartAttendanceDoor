@@ -48,11 +48,13 @@ class DropDownMenu<T> extends StatelessWidget {
       hint: Text(hintText),
       items: items,
       onChanged: onChanged,
+      
       icon: const Icon(Icons.arrow_drop_down),
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
         label: Text(labelText ?? ""),
         hintText: hintText,
+        // contentPadding: EdgeInsets.all(16)
       ),
     );
     //!SECTION

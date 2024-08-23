@@ -1,5 +1,6 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
 import 'package:smart_attendance_door/core/widgets/students_card_list.dart';
 import 'package:smart_attendance_door/core/widgets/tertiary_button.dart';
@@ -7,6 +8,7 @@ import 'package:smart_attendance_door/features/class%20management/presentation/p
 import 'package:smart_attendance_door/features/student%20management/presentation/pages/student_details.screen.dart';
 
 import '../../../../Data/Model/Class/Class.model.dart';
+import '../../../../Data/Model/Shared/day_of_the_week.enum.dart';
 import '../../../../Data/Model/Student/student.model.dart';
 
 //t2 Dependencies Imports
@@ -100,9 +102,8 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
     //SECTION - Build Return
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Class Details",
-          style: Theme.of(context).textTheme.titleMedium,
         ),
         centerTitle: true,
       ),
@@ -170,6 +171,84 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 Expanded(
                   child: Text(
                     "${widget.selectedClass.studentIds.length} total students",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Start Semester Date:",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: const Color(0xff808080)),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    DateFormat('d/M/yyyy').format (widget.selectedClass.startSemesterDate),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "End Semester Date:",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: const Color(0xff808080)),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    DateFormat('d/M/yyyy').format (widget.selectedClass.endSemesterDate),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Weekly Subject Date & Time:",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: const Color(0xff808080)),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    "${DayOfTheWeek.values[widget.selectedClass.weeklySubjectDate.index].name} ${widget.selectedClass.weeklySubjectTime}",
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium

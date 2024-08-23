@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../Shared/day_of_the_week.enum.dart';
 import '../Shared/school_class.enum.dart';
 import '../Shared/subject.enum.dart';
 
@@ -8,43 +9,52 @@ class Class {
   String name;
   SchoolClass schoolClass;
   Subject subject;
-  int? numberOfStudents;
   List<String> studentIds;
+  DateTime startSemesterDate;
+  DateTime endSemesterDate;
+  DayOfTheWeek weeklySubjectDate;
+  String weeklySubjectTime;
 
-  //
-  //
   Class({
     required this.id,
     required this.name,
     required this.schoolClass,
     required this.subject,
-    this.numberOfStudents = 0,
     required this.studentIds,
-    // required this.subjectName,
+    required this.startSemesterDate,
+    required this.endSemesterDate,
+    required this.weeklySubjectDate,
+    required this.weeklySubjectTime,
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      "numberOfStudents": numberOfStudents,
       "schoolClass": schoolClass.index,
       "subject": subject.index,
       "studentIds": studentIds,
+      'startSemesterDate': startSemesterDate.toIso8601String(),
+      'endSemesterDate': endSemesterDate.toIso8601String(),
+      'weeklySubjectDay': weeklySubjectDate.index,
+      'weeklySubjectTime': weeklySubjectTime,
     };
   }
 
   factory Class.fromMap(Map<String, dynamic> map) {
+
     return Class(
       id: map['id'] as String,
       name: map['name'] as String,
       schoolClass: SchoolClass.values[map["schoolClass"]],
       subject: Subject.values[map["subject"]],
-      numberOfStudents: map['numberOfStudents'] as int? ?? 0,
       studentIds: map['studentIds'] != null
           ? List<String>.from(map['studentIds'] as List<dynamic>)
           : [],
-      // subjectName: map["subjectName"],
+      startSemesterDate: DateTime.parse(map['startSemesterDate']),
+      endSemesterDate: DateTime.parse(map['endSemesterDate']),
+      weeklySubjectDate: DayOfTheWeek.values[map["weeklySubjectDay"]],
+      weeklySubjectTime: map['weeklySubjectTime'] as String,
     );
   }
 

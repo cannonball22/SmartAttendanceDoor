@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
 import 'package:smart_attendance_door/Data/Model/Shared/gender.enum.dart';
 import 'package:smart_attendance_door/Data/Model/Shared/school_class.enum.dart';
@@ -289,52 +288,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
-                //
-                MultiDropdown<SchoolClass>(
-                  items: List.generate(
-                    SchoolClass.values.length,
-                    (index) => DropdownItem(
-                      label: SchoolClass.values[index].name,
-                      value: SchoolClass.values[index],
-                    ),
-                  ),
-                  fieldDecoration: const FieldDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Class",
-                    hintText: "Select Classes you teach",
-                  ),
-                  chipDecoration: const ChipDecoration(
-                    backgroundColor: Color(0xffFAD196),
-                  ),
-                  onSelectionChange: (value) {
-                    print(value);
-                  },
-                  // enabled: false,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                //
-                DropDownMenu(
-                  labelText: "Subject",
-                  hintText: "Select your Subjects",
-                  value: selectedSubject,
-                  items: List.generate(Subject.values.length, (index) {
-                    Subject subject = Subject.values[index];
-                    return DropdownMenuItem<Subject>(
-                      value: subject,
-                      child: Text(subject.name),
-                    );
-                  }),
-                  onChanged: (Subject? newValue) {
-                    setState(() {
-                      selectedSubject = newValue!;
-                    });
-                  },
-                ),
+                // const SizedBox(
+                //   height: 16,
+                // ),
+                // //
+                // MultiDropdown<SchoolClass>(
+                //   items: List.generate(
+                //     SchoolClass.values.length,
+                //     (index) => DropdownItem(
+                //       label: SchoolClass.values[index].name,
+                //       value: SchoolClass.values[index],
+                //     ),
+                //   ),
+                //   fieldDecoration: const FieldDecoration(
+                //     border: OutlineInputBorder(),
+                //     labelText: "Class",
+                //     hintText: "Select Classes you teach",
+                //   ),
+                //   chipDecoration: const ChipDecoration(
+                //     backgroundColor: Color(0xffFAD196),
+                //   ),
+                //   onSelectionChange: (value) {
+                //     print(value);
+                //   },
+                //   // enabled: false,
+                // ),
+                // const SizedBox(
+                //   height: 16,
+                // ),
+                // //
+                // DropDownMenu(
+                //   labelText: "Subject",
+                //   hintText: "Select your Subjects",
+                //   value: selectedSubject,
+                //   items: List.generate(Subject.values.length, (index) {
+                //     Subject subject = Subject.values[index];
+                //     return DropdownMenuItem<Subject>(
+                //       value: subject,
+                //       child: Text(subject.name),
+                //     );
+                //   }),
+                //   onChanged: (Subject? newValue) {
+                //     setState(() {
+                //       selectedSubject = newValue!;
+                //     });
+                //   },
+                // ),
               ],
             ),
           )),

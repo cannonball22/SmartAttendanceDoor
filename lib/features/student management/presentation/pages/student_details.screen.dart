@@ -1,7 +1,6 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
-import 'package:smart_attendance_door/features/student%20management/presentation/pages/student_grades.screen.dart';
 
 import '../../../../Data/Model/Class/Class.model.dart';
 import '../../../../Data/Model/Student/student.model.dart';
@@ -47,14 +46,14 @@ class StudentDetailsScreen extends StatelessWidget {
     // SECTION - Build Return
     return Scaffold(
       appBar: AppBar(
-        title: Text("Student Detials"),
+        title: const Text("Student Detials"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(112),
+          preferredSize: const Size.fromHeight(112),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -62,7 +61,7 @@ class StudentDetailsScreen extends StatelessWidget {
                     backgroundImage: NetworkImage(student.imageUrl),
                     radius: 24,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 16,
                   ),
                   Text(
@@ -84,76 +83,76 @@ class StudentDetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            Container(
-              decoration: const BoxDecoration(color: Color(0xFFF6FAF7)),
-              child: Row(
-                // mainAxisAlignment: MainAxisAlignment.,
-                children: [
-                  Expanded(
-                    child: IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  StudentGradesScreen(
-                                student: student,
-                              ),
-                            ),
-                          );
-                        },
-                        icon: Column(
-                          children: [
-                            Icon(
-                              Icons.grading_rounded,
-                              color: Color(0xffEDA749),
-                            ),
-                            SizedBox(
-                              height: 4,
-                            ),
-                            Text(
-                              'Grades',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF2C2C2C),
-                                fontSize: 14,
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.10,
-                              ),
-                            )
-                          ],
-                        )),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: const Column(
-                          children: [
-                            Icon(
-                              Icons.grading_rounded,
-                              color: Color(0xffEDA749),
-                            ),
-                            SizedBox(
-                              height: 4,
-                            ),
-                            Text(
-                              'Attendance',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF2C2C2C),
-                                fontSize: 14,
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.10,
-                              ),
-                            ),
-                          ],
-                        )),
-                  )
-                ],
-              ),
-            ),
+            // Container(
+            //   decoration: const BoxDecoration(color: Color(0xFFF6FAF7)),
+            //   child: Row(
+            //     // mainAxisAlignment: MainAxisAlignment.,
+            //     children: [
+            //       // Expanded(
+            //       //   child: IconButton(
+            //       //       onPressed: () {
+            //       //         Navigator.push(
+            //       //           context,
+            //       //           MaterialPageRoute<void>(
+            //       //             builder: (BuildContext context) =>
+            //       //                 StudentGradesScreen(
+            //       //               student: student,
+            //       //             ),
+            //       //           ),
+            //       //         );
+            //       //       },
+            //       //       icon: Column(
+            //       //         children: [
+            //       //           Icon(
+            //       //             Icons.grading_rounded,
+            //       //             color: Color(0xffEDA749),
+            //       //           ),
+            //       //           SizedBox(
+            //       //             height: 4,
+            //       //           ),
+            //       //           Text(
+            //       //             'Grades',
+            //       //             textAlign: TextAlign.center,
+            //       //             style: TextStyle(
+            //       //               color: Color(0xFF2C2C2C),
+            //       //               fontSize: 14,
+            //       //               fontFamily: 'Roboto',
+            //       //               fontWeight: FontWeight.w500,
+            //       //               letterSpacing: 0.10,
+            //       //             ),
+            //       //           )
+            //       //         ],
+            //       //       )),
+            //       // ),
+            //       Expanded(
+            //         child: IconButton(
+            //             onPressed: () {},
+            //             icon: const Column(
+            //               children: [
+            //                 Icon(
+            //                   Icons.grading_rounded,
+            //                   color: Color(0xffEDA749),
+            //                 ),
+            //                 SizedBox(
+            //                   height: 4,
+            //                 ),
+            //                 Text(
+            //                   'Attendance',
+            //                   textAlign: TextAlign.center,
+            //                   style: TextStyle(
+            //                     color: Color(0xFF2C2C2C),
+            //                     fontSize: 14,
+            //                     fontFamily: 'Roboto',
+            //                     fontWeight: FontWeight.w500,
+            //                     letterSpacing: 0.10,
+            //                   ),
+            //                 ),
+            //               ],
+            //             )),
+            //       )
+            //     ],
+            //   ),
+            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

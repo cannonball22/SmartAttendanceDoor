@@ -427,8 +427,6 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
                         ),
                       );
 
-                      selectedClass?.numberOfStudents =
-                          (selectedClass!.numberOfStudents ?? 0 + 1);
                       selectedClass!.studentIds.add(studentId);
                       ClassRepo()
                           .updateSingle(selectedClass!.id, selectedClass!);

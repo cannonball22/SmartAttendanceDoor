@@ -8,7 +8,7 @@ import 'package:smart_attendance_door/features/reports/presentation/pages/report
 import 'package:smart_attendance_door/features/student%20management/presentation/pages/student_management.screen.dart';
 
 import '../../../profile/presentation/profile.screen.dart';
-import '../../../students overview/presentation/pages/student_overview.screen.dart';
+import '../../../students overview/presentation/pages/students_attendance.screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -233,14 +233,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: [
                         QuickActionContainer(
-                          title: "Students\nOverview",
+                          title: "Students\nAttendance",
                           icon: Icons.check_circle_outline,
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
                                   builder: (BuildContext context) =>
-                                      const StudentOverviewScreen(),
+                                      const StudentsAttendanceScreen(),
                                 ));
                           },
                         ),

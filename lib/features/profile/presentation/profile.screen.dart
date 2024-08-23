@@ -4,7 +4,6 @@ import 'package:smart_attendance_door/features/authentication/presentation/pages
 import 'package:smart_attendance_door/features/profile/presentation/EditProfile.screen.dart';
 
 import '../../../Data/Model/App User/app_user.model.dart';
-import '../../../Data/Model/Shared/subject.enum.dart';
 import '../../../core/Services/Auth/AuthService.dart';
 
 //t2 Dependencies Imports
@@ -214,52 +213,52 @@ class ProfileScreen extends StatelessWidget {
                 )
               ],
             ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Class:',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Text(
-                        appUser.schoolClasses
-                            .map((schoolClass) => schoolClass.name)
-                            .join(appUser.schoolClasses.length > 1 ? ', ' : ''),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Subjects:',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    appUser.subject.name,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                )
-              ],
-            ),
+            // const SizedBox(
+            //   height: 16,
+            // ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Expanded(
+            //       child: Text(
+            //         'Class:',
+            //         style: Theme.of(context).textTheme.bodyMedium,
+            //       ),
+            //     ),
+            //     Expanded(
+            //       child: Row(
+            //         children: [
+            //           Text(
+            //             appUser.schoolClasses
+            //                 .map((schoolClass) => schoolClass.name)
+            //                 .join(appUser.schoolClasses.length > 1 ? ', ' : ''),
+            //             style: Theme.of(context).textTheme.bodyMedium,
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(
+            //   height: 16,
+            // ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Expanded(
+            //       child: Text(
+            //         'Subjects:',
+            //         style: Theme.of(context).textTheme.bodyMedium,
+            //       ),
+            //     ),
+            //     Expanded(
+            //       child: Text(
+            //         appUser.subject.name,
+            //         style: Theme.of(context).textTheme.bodyMedium,
+            //       ),
+            //     )
+            //   ],
+            // ),
           ],
         ),
       ),
