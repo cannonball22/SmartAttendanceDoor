@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Attendance {
   String id;
-  bool attendance; // Indicates if the student was present or absent
+  bool attendance;
   String studentId;
   String classId;
-  DateTime date; // The date of the attendance
+  DateTime date;
 
   Attendance({
     required this.id,
@@ -23,7 +23,7 @@ class Attendance {
       'attendance': attendance,
       'studentId': studentId,
       'classId': classId,
-      'date': date.toIso8601String(), // Convert DateTime to ISO8601 string
+      'date': date.toIso8601String(),
     };
   }
 

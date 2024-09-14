@@ -196,7 +196,8 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    DateFormat('d/M/yyyy').format (widget.selectedClass.startSemesterDate),
+                    DateFormat('yyyy-MM-dd')
+                        .format(widget.selectedClass.startSemesterDate),
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -222,7 +223,8 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    DateFormat('d/M/yyyy').format (widget.selectedClass.endSemesterDate),
+                    DateFormat('yyyy-MM-dd')
+                        .format(widget.selectedClass.endSemesterDate),
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium

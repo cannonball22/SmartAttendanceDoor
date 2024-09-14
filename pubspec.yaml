@@ -24,7 +24,7 @@ dependencies:
   rating_dialog: ^2.0.4
   flutter_easyloading: ^3.0.5
   flutter_snackbar_plus: ^0.5.0
-  auto_animated_list: ^1.0.4
+  auto_animated_list: ^2.0.0
   solid_bottom_sheet: ^0.1.10
   theme_manager: ^2.0.4
   flutter_zoom_drawer: ^3.0.4+1
@@ -55,7 +55,7 @@ dependencies:
   image_picker: ^1.0.4
   pdf: ^3.11.1
   pdf_image_renderer: ^0.7.0
-  share_plus: ^6.3.0
+  share_plus: ^10.0.2
 
 ##!SECTION --Development Dependencies
 dev_dependencies:

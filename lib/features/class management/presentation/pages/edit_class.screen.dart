@@ -51,6 +51,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
   late List<Student?>? allStudents;
   bool isLoaded = false;
   late FormController formController;
+
   //t2 --State
   //
   //t2 --Constants
@@ -72,10 +73,13 @@ class _EditClassScreenState extends State<EditClassScreen> {
     selectedSubject = widget.selectedClass.subject;
     selectedStudentsIds = widget.selectedClass.studentIds;
     formController = FormController();
-    formController.controller("startSemesterDate").text = DateFormat('d/M/yyyy').format(widget.selectedClass.startSemesterDate);
-    formController.controller("endSemesterDate").text = DateFormat('d/M/yyyy').format(widget.selectedClass.endSemesterDate);
+    formController.controller("startSemesterDate").text =
+        DateFormat('yyyy-MM-dd').format(widget.selectedClass.startSemesterDate);
+    formController.controller("endSemesterDate").text =
+        DateFormat('yyyy-MM-dd').format(widget.selectedClass.endSemesterDate);
     selectedDayOfTheWeek = widget.selectedClass.weeklySubjectDate;
-    formController.controller("weeklySubjectTime").text = widget.selectedClass.weeklySubjectTime;
+    formController.controller("weeklySubjectTime").text =
+        widget.selectedClass.weeklySubjectTime;
 
     fetchAllStudents().then((students) {
       setState(() {
@@ -232,14 +236,14 @@ class _EditClassScreenState extends State<EditClassScreen> {
                     ),
                     TextFormField(
                       controller:
-                      formController.controller("startSemesterDate"),
+                          formController.controller("startSemesterDate"),
                       decoration: const InputDecoration(
                         hintText: "Select start date (mm/dd/yyyy)",
                         border: OutlineInputBorder(),
                       ),
                       readOnly: true,
                       onTap: () async {
-                        DateTime? selectedDate =  await showDatePicker(
+                        DateTime? selectedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(1900),
@@ -247,10 +251,8 @@ class _EditClassScreenState extends State<EditClassScreen> {
                         );
                         if (selectedDate != null &&
                             selectedDate != DateTime.now()) {
-                          formController
-                              .controller("startSemesterDate")
-                              . text = "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-
+                          formController.controller("startSemesterDate").text =
+                              "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                         }
                       },
                       validator: (value) {
@@ -269,15 +271,14 @@ class _EditClassScreenState extends State<EditClassScreen> {
                       height: 8,
                     ),
                     TextFormField(
-                      controller:
-                      formController.controller("endSemesterDate"),
+                      controller: formController.controller("endSemesterDate"),
                       decoration: const InputDecoration(
                         hintText: "Select end date (mm/dd/yyyy)",
                         border: OutlineInputBorder(),
                       ),
                       readOnly: true,
                       onTap: () async {
-                        DateTime? selectedDate = await  showDatePicker(
+                        DateTime? selectedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(1900),
@@ -285,15 +286,20 @@ class _EditClassScreenState extends State<EditClassScreen> {
                         );
                         if (selectedDate != null &&
                             selectedDate != DateTime.now()) {
-                          formController
-                              .controller("endSemesterDate")
-                              .text = "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                          formController.controller("endSemesterDate").text =
+                              "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                         }
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'End semester date cannot be empty';
-                        } if(DateTime.parse(formController.controller("endSemesterDate").text).isBefore(DateTime.parse(formController.controller("startSemesterDate").text))){
+                        }
+                        if (DateTime.parse(formController
+                                .controller("endSemesterDate")
+                                .text)
+                            .isBefore(DateTime.parse(formController
+                                .controller("startSemesterDate")
+                                .text))) {
                           return 'End semester date should be after Start semester';
                         }
                         return null;
@@ -337,7 +343,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                     ),
                     TextFormField(
                       controller:
-                      formController.controller("weeklySubjectTime"),
+                          formController.controller("weeklySubjectTime"),
                       decoration: const InputDecoration(
                         hintText: "Select the time (hh:mm AM/PM)",
                         border: OutlineInputBorder(),
@@ -348,11 +354,9 @@ class _EditClassScreenState extends State<EditClassScreen> {
                           context: context,
                           initialTime: TimeOfDay.now(),
                         );
-                        if (selectedTime != null ) {
-                          formController
-                              .controller("weeklySubjectTime")
-                              .text =
-                          "${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}";
+                        if (selectedTime != null) {
+                          formController.controller("weeklySubjectTime").text =
+                              "${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}";
                         }
                       },
                       validator: (value) {
@@ -408,15 +412,20 @@ class _EditClassScreenState extends State<EditClassScreen> {
             // multiSelectController
             //     .selectWhere((value) => value.value.id == "262-UXi-34293");
             if (_formKey.currentState!.validate()) {
-              String className = "${selectedClass.name} - ${selectedSubject.name}";
+              String className =
+                  "${selectedClass.name} - ${selectedSubject.name}";
+              final dateFormat = DateFormat("yyyy-MM-dd");
 
-              widget.selectedClass.name =  className;
-              widget.selectedClass.schoolClass= selectedClass;
-              widget.selectedClass.subject= selectedSubject;
-              widget.selectedClass.startSemesterDate= DateTime.parse(formController.controller("startSemesterDate").text);
-              widget.selectedClass.endSemesterDate= DateTime.parse(formController.controller("endSemesterDate").text);
-              widget.selectedClass.weeklySubjectDate= selectedDayOfTheWeek;
-              widget.selectedClass.weeklySubjectTime= formController.controller("weeklySubjectTime").text;
+              widget.selectedClass.name = className;
+              widget.selectedClass.schoolClass = selectedClass;
+              widget.selectedClass.subject = selectedSubject;
+              widget.selectedClass.startSemesterDate = dateFormat
+                  .parse(formController.controller("startSemesterDate").text);
+              widget.selectedClass.endSemesterDate = dateFormat
+                  .parse(formController.controller("endSemesterDate").text);
+              widget.selectedClass.weeklySubjectDate = selectedDayOfTheWeek;
+              widget.selectedClass.weeklySubjectTime =
+                  formController.controller("weeklySubjectTime").text;
 
               await ClassRepo()
                   .updateSingle(widget.selectedClass.id, widget.selectedClass);
