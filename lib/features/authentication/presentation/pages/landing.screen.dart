@@ -1,14 +1,12 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:smart_attendance_door/core/widgets/tertiary_button.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_in.screen.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/secondary_button.dart';
 
-//t2 Dependancies Imports
+//t2 Dependencies Imports
 //t3 Services
 //t3 Models
 //t1 Exports

@@ -2,7 +2,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_snackbar_plus/flutter_snackbar_plus.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:image_picker/image_picker.dart';
@@ -377,19 +376,13 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
                     SnackbarHelper.showTemplated(
                       context,
                       title: "Please provide an image for the student",
-                      style: FlutterSnackBarStyle(
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        titleStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onError,
-                        ),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      titleStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onError,
                       ),
                     );
                     return;
                   }
-                  //
-                  //
-                  //
-                  //
                   if (_formKey.currentState!.validate()) {
                     String studentId = IdGeneratingService.generate();
                     await FirebaseStorageService.uploadSingle(

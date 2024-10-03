@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Quick actions',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(

@@ -1,4 +1,0 @@
-enum SheetLocation {
-  top,
-  bottom,
-}

@@ -105,7 +105,7 @@ class _UploadIDPhotoScreenState extends State<UploadIDPhotoScreen> {
                 const SizedBox(
                   height: 16,
                 ),
-                Text(
+                const Text(
                   'Step 3 of 3',
                   style: TextStyle(
                     color: Color(0xFF808080),

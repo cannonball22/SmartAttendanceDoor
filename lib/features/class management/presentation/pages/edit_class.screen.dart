@@ -324,7 +324,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                         );
                       }),
                       validator: (value) {
-                        if (value == null || selectedDayOfTheWeek == null) {
+                        if (value == null) {
                           return 'Weekly subject date cannot be empty';
                         }
                         return null;

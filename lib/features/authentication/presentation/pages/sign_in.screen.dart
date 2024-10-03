@@ -1,10 +1,8 @@
 //t2 Core Packages Imports
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
-import '../../../../core/Services/Auth/AuthService.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/tertiary_button.dart';
 import '../../../home/presentation/pages/home.screen.dart';
@@ -50,7 +48,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
     //SECTION - Build Return
     return Scaffold(
-
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -61,8 +58,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 64,),
-
+                  const SizedBox(
+                    height: 64,
+                  ),
                   const Text(
                     'Welcome Back to Smart Attendance Door!',
                     style: TextStyle(
@@ -71,7 +69,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 16,),
+                  const SizedBox(
+                    height: 16,
+                  ),
                   const Text(
                     'Stay connected and engaged with education, whether you’re a teacher, student, or parent',
                     style: TextStyle(
@@ -79,8 +79,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(height: 32,),
-
+                  const SizedBox(
+                    height: 32,
+                  ),
                   TextFormField(
                     controller: _formController.controller("email"),
                     decoration: const InputDecoration(

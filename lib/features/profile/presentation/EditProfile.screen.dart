@@ -43,7 +43,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   XFile? profileImage;
   late Subject selectedSubject;
   final _formKey = GlobalKey<FormState>();
-  final List<String> _selectedItems = [];
 
   //t2 --Controllers
   //

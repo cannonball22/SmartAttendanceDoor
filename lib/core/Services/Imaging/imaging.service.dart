@@ -33,9 +33,6 @@ class ImagingService {
   static Future<List<XFile>?> captureMultiImages() async {
     List<XFile> images = await _service.pickMultiImage();
 
-    if (images != null) {
-      return images;
-    }
-    return null;
+    return images;
   }
 }

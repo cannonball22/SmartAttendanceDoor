@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_snackbar_plus/flutter_snackbar_plus.dart';
-
 class SnackbarHelper {
-  static setDefault({
-    // Style
-    FlutterSnackBarStyle? style,
-    // Configuration
-    FlutterSnackBarConfiguration? configuration,
-  }) =>
-      FlutterSnackBar().initialize(configuration: configuration, style: style);
-
   static showTemplated(
     BuildContext context, {
     // Leading
@@ -21,31 +11,62 @@ class SnackbarHelper {
     Widget? content,
     // Trailing
     Widget? trailing,
-    // Style
-    FlutterSnackBarStyle? style,
-    // Configuration
-    FlutterSnackBarConfiguration? configuration,
-  }) =>
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        FlutterSnackBar.showTemplated(context,
-            title: title,
-            leading: leading,
-            message: message,
-            content: content,
-            trailing: trailing,
-            style: style,
-            configuration: configuration);
-      });
+    // Custom style
+    TextStyle? titleStyle,
+    TextStyle? messageStyle,
+    Color? backgroundColor,
+    SnackBarAction? action,
+    Duration? duration,
+  }) {
+    final snackBarContent = Row(
+      children: [
+        if (leading != null) leading,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style:
+                    titleStyle ?? const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (message != null)
+                Text(
+                  message,
+                  style: messageStyle ?? const TextStyle(),
+                ),
+              if (content != null) content,
+            ],
+          ),
+        ),
+        if (trailing != null) trailing,
+      ],
+    );
+
+    final snackBar = SnackBar(
+      content: snackBarContent,
+      backgroundColor:
+          backgroundColor ?? Theme.of(context).snackBarTheme.backgroundColor,
+      action: action,
+      duration: duration ?? const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   static showCustom(
     BuildContext context, {
     required Widget child,
-    // Style
-    FlutterSnackBarStyle? style = const FlutterSnackBarStyle(),
-    // Configuration
-    FlutterSnackBarConfiguration? configuration =
-        const FlutterSnackBarConfiguration(),
-  }) =>
-      FlutterSnackBar.showCustom(context,
-          child: child, configuration: configuration, style: style);
+    SnackBarAction? action,
+    Duration? duration,
+  }) {
+    final snackBar = SnackBar(
+      content: child,
+      action: action,
+      duration: duration ?? const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 }

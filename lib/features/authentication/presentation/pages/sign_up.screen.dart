@@ -1,11 +1,13 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
-import 'package:form_controller/form_controller.dart';
-import 'package:smart_attendance_door/features/authentication/presentation/pages/setup_account.screen.dart';
-import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_in.screen.dart';
 
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/tertiary_button.dart';
+import '../../../../Data/Model/Shared/gender.enum.dart';
+import '../../../../Data/Model/Shared/school_class.enum.dart';
+import '../../../../Data/Model/Shared/subject.enum.dart';
+import '../../../../core/Services/Auth/AuthService.dart';
+import '../../../home/presentation/pages/home.screen.dart';
+import '../widgets/step_one_widget.dart';
+import '../widgets/step_two_widget.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -27,11 +29,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   //
   //SECTION - State Variables
   //t2 --Controllers
-  late FormController _formController;
+  final PageController _pageController = PageController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
 
   //t2 --Controllers
   //
   //t2 --State
+  int _currentPage = 0;
+  Gender? selectedGender;
+  List<SchoolClass>? selectedClasses;
+  Subject? selectedSubject;
+
   //t2 --State
   //
   //t2 --Constants
@@ -44,7 +56,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     //
     //SECTION - State Variables initializations & Listeners
     //t2 --Controllers & Listeners
-    _formController = FormController();
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -67,6 +78,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   //SECTION - Stateless functions
   //!SECTION
+  void _nextPage() {
+    if (_formKey.currentState!.validate()) {
+      if (_currentPage < 2) {
+        _pageController.animateToPage(
+          _currentPage + 1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  void _previousPage() {
+    if (_currentPage > 0) {
+      _pageController.animateToPage(
+        _currentPage - 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  createAccount() async {
+    if (_formKey.currentState!.validate()) {
+      bool success = await AuthService().signUpWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text,
+          fullName: fullNameController.text,
+          phoneNumber: phoneNumberController.text,
+          schoolClasses: selectedClasses!,
+          subject: selectedSubject!,
+          gender: selectedGender!,
+          dateOfBirth: dobController.text,
+          context: context);
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const HomeScreen(),
+          ),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (selectedDate != null && selectedDate != DateTime.now()) {
+      setState(() {
+        dobController.text =
+            "${selectedDate.month}/${selectedDate.day}/${selectedDate.year}";
+      });
+    }
+  }
 
   //SECTION - Action Callbacks
   //!SECTION
@@ -86,168 +158,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     //SECTION - Build Return
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  const Text(
-                    'Step 1 of 3',
-                    style: TextStyle(
-                      color: Color(0xFF808080),
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Text(
-                    'Please note that students are registered by their teachers.',
-                    style: TextStyle(
-                      color: Color(0xFF808080),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  const Text(
-                    'Account info:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  TextFormField(
-                    controller: _formController.controller("name"),
-                    decoration: const InputDecoration(
-                      hintText: "Full name",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Full name cannot be empty';
-                      } else if (value.length < 3) {
-                        return 'Full name must be at least 3 characters long';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  TextFormField(
-                    controller: _formController.controller("email"),
-                    decoration: const InputDecoration(
-                      hintText: "Email",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  TextFormField(
-                    controller: _formController.controller("password"),
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      hintText: "Password",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password cannot be empty';
-                      } else if (value.length < 8) {
-                        return 'Password must be at least 8 characters long';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+        child: Form(
+          key: _formKey,
+          child: PageView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            children: [
+              StepOneWidget(
+                nextPage: _nextPage,
+                emailController: emailController,
+                passwordController: passwordController,
+                fullNameController: fullNameController,
               ),
-            ),
+              StepTwoWidget(
+                dobController: dobController,
+                phoneNumberController: phoneNumberController,
+                previousPage: _previousPage,
+                createAccount: createAccount,
+                onSubjectChanged: (Subject? newValue) {
+                  setState(() {
+                    selectedSubject = newValue!;
+                  });
+                },
+                onClassesChanged: (newValue) {
+                  setState(() {
+                    selectedClasses = newValue;
+                  });
+                },
+                onGenderChanged: (Gender? newValue) {
+                  setState(() {
+                    selectedGender = newValue!;
+                  });
+                },
+                onSelectDate: _selectDate,
+                selectedSubject: selectedSubject,
+                selectedClasses: selectedClasses,
+                selectedGender: selectedGender,
+              )
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                title: 'Next',
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => SetupAccountScreen(
-                          formController: _formController,
-                        ),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Already have an account?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                TertiaryButton(
-                  title: "Sign in",
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const SignInScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      resizeToAvoidBottomInset: true,
     );
     //!SECTION
   }
@@ -255,8 +213,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void dispose() {
     //SECTION - Disposable variables
-    // _formController.dispose();
-    //!SECTION
+    fullNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    phoneNumberController.dispose();
+    dobController.dispose(); //!SECTION
     super.dispose();
   }
 }
+//t2 Core Packages Imports
+
+//t2 Dependencies Imports
+//t3 Services
+//t3 Models
+//t1 Exports
