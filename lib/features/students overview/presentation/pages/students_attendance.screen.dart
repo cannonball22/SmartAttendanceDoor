@@ -44,7 +44,8 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
   DateTime? selectedDate;
   List<Class?>? classes;
   late List<Student> students;
-  bool isLoaded= false;
+  bool isLoaded = false;
+
   //t2 --State
   //
   //t2 --Constants
@@ -58,12 +59,12 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
     //SECTION - State Variables initializations & Listeners
     //t2 --Controllers & Listeners
     _formController = FormController();
-     ClassRepo().readAll().then((val){
-       setState(() {
-         classes = val;
-         isLoaded = true;
-       });
-     });
+    ClassRepo().readAll().then((val) {
+      setState(() {
+        classes = val;
+        isLoaded = true;
+      });
+    });
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -131,217 +132,217 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
         title: const Text("Students Attendance"),
         centerTitle: true,
       ),
-      body: isLoaded ?  Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: DropDownMenu<Class>(
-                            hintText: "Select Class",
-                            labelText: "Class",
-                            value: selectedClass,
-                            items: classes!
-                                .map(
-                                  (classItem) => DropdownMenuItem<Class>(
-                                    value: classItem,
-                                    child: Text(
-                                      classItem!.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (Class? newValue) {
-                              setState(() {
-                                selectedClass = newValue;
-
-                              });
-                              //
-                              // if (selectedClass != null &&
-                              //     selectedDate != null) {
-                              //   setState(() {});
-                              // }
-                            },
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            enabled: selectedClass != null ? true : false,
-                            controller:
-                                _formController.controller("dateOfBirth"),
-                            decoration: const InputDecoration(
-                              hintText: "mm/dd/yyyy",
-                              label: Text("Date"),
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true,
-                            onTap: () async {
-                              selectedDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate:selectedClass!.startSemesterDate,
-                                lastDate: selectedClass!.endSemesterDate,
-                              );
-                              if (selectedDate != null && selectedDate != DateTime.now()) {
-                                _formController.controller("dateOfBirth").text =
-                                "${selectedDate?.month}/${selectedDate?.day}/${selectedDate?.year}";
-
-                                if (selectedClass != null && selectedDate != null) {
-                                  print("got called from fun");
-                                  setState(() {});
-                                }
-                              }
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Date cannot be empty';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  (selectedClass == null || selectedDate == null)
-                      ? Expanded(
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle_outlined,
-                                    color: Color(0xffE1E1E1),
-                                    size: 72,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Attendance',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Choose a Class and date to mark attendance or review past records.',
-                                    textAlign: TextAlign.center,
+      body: isLoaded
+          ? Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: DropDownMenu<Class>(
+                          hintText: "Select Class",
+                          labelText: "Class",
+                          value: selectedClass,
+                          items: classes!
+                              .map(
+                                (classItem) => DropdownMenuItem<Class>(
+                                  value: classItem,
+                                  child: Text(
+                                    classItem!.name,
                                     style:
                                         Theme.of(context).textTheme.bodyMedium,
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      : FutureBuilder(
-                          future: AttendanceRepo().readAllWhere([
-                            QueryCondition.equals(
-                                field: "classId", value: selectedClass!.id),
-                          ]),
-                          builder: (context, attendanceSnapshot) {
-                            if (attendanceSnapshot.connectionState ==
-                                ConnectionState.done) {
-                              if (attendanceSnapshot.hasError) {
-                                return const Center(
-                                  child: Text(
-                                      "Error while getting the attendance"),
-                                );
-                              }
-                              print(" attendanceSnapshot.data? ${ attendanceSnapshot.data![0]?.date}");
-                              print("selectedDate: $selectedDate");
-                              List<Attendance?>? attendanceRecords =
-                                  attendanceSnapshot.data?.where((e) {
-                                if (e is Attendance) {
-                                  return isSameDay(e.date, selectedDate!);
-                                }
-                                return false;
-                              }).toList();
-                              List<String> existingStudentIds = attendanceRecords?.map((e) => e!.studentId).toList() ?? [];
-
-                              // Iterate over each student ID in StudentListIds
-                              for (String studentId in selectedClass!.studentIds) {
-                                if (!existingStudentIds.contains(studentId)) {
-                                  // Create new Attendance object for the studentId
-                                  Attendance newAttendance = Attendance(
-                                    id: studentId, // Your logic to generate or assign the ID
-                                    attendance: false, // Or your desired default value
-                                    studentId: studentId,
-                                    classId: selectedClass!.id, // Your class ID
-                                    date: DateTime.now(),
-                                  );
-
-                                  // Add newAttendance to your attendance list
-                                  attendanceRecords?.add(newAttendance);
-                                }
-                              }
-                              if (attendanceRecords == null ||
-                                  attendanceRecords.isEmpty) {
-                                return const Center(
-                                  child: Text(
-                                      "No Attendance Records for this date"),
-                                );
-                              }
-                              if (attendanceSnapshot.hasData) {
-                                return SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 16,
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 16),
-                                        decoration: const BoxDecoration(
-                                            color: Color(0xFFF3F3F3)),
-                                        child: const Text(
-                                          'Name',
-                                          style: TextStyle(
-                                            color: Color(0xFF1C2244),
-                                            fontSize: 12,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      Column(
-                                        children: List.generate(
-                                          attendanceRecords.length,
-                                          (index) => StudentsAttendanceCard(
-                                            attendance:
-                                                attendanceRecords[index]!,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            }
-
-                            return const Center(
-                                child: CircularProgressIndicator());
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (Class? newValue) {
+                            setState(() {
+                              selectedClass = newValue;
+                            });
+                            //
+                            // if (selectedClass != null &&
+                            //     selectedDate != null) {
+                            //   setState(() {});
+                            // }
                           },
                         ),
-                ],
-              ) : const Center(
-    child: CircularProgressIndicator(),
-    ),
+                      ),
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          enabled: selectedClass != null ? true : false,
+                          controller: _formController.controller("dateOfBirth"),
+                          decoration: const InputDecoration(
+                            hintText: "mm/dd/yyyy",
+                            label: Text("Date"),
+                            border: OutlineInputBorder(),
+                          ),
+                          readOnly: true,
+                          onTap: () async {
+                            selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: selectedClass!.startSemesterDate,
+                              lastDate: selectedClass!.endSemesterDate,
+                            );
+                            if (selectedDate != null &&
+                                selectedDate != DateTime.now()) {
+                              _formController.controller("dateOfBirth").text =
+                                  "${selectedDate?.month}/${selectedDate?.day}/${selectedDate?.year}";
 
+                              if (selectedClass != null &&
+                                  selectedDate != null) {
+                                print("got called from fun");
+                                setState(() {});
+                              }
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Date cannot be empty';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                (selectedClass == null || selectedDate == null)
+                    ? Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_outlined,
+                                  color: Color(0xffE1E1E1),
+                                  size: 72,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Attendance',
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Choose a Class and date to mark attendance or review past records.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : FutureBuilder(
+                        future: AttendanceRepo().readAllWhere([
+                          QueryCondition.equals(
+                              field: "classId", value: selectedClass!.id),
+                        ]),
+                        builder: (context, attendanceSnapshot) {
+                          if (attendanceSnapshot.connectionState ==
+                              ConnectionState.done) {
+                            if (attendanceSnapshot.hasError) {
+                              return const Center(
+                                child:
+                                    Text("Error while getting the attendance"),
+                              );
+                            }
+                            List<Attendance?>? attendanceRecords =
+                                attendanceSnapshot.data?.where((e) {
+                              if (e is Attendance) {
+                                return isSameDay(e.date, selectedDate!);
+                              }
+                              return false;
+                            }).toList();
+                            List<String> existingStudentIds = attendanceRecords
+                                    ?.map((e) => e!.studentId)
+                                    .toList() ??
+                                [];
 
+                            // Iterate over each student ID in StudentListIds
+                            for (String studentId
+                                in selectedClass!.studentIds) {
+                              if (!existingStudentIds.contains(studentId)) {
+                                // Create new Attendance object for the studentId
+                                Attendance newAttendance = Attendance(
+                                  id: studentId,
+                                  // Your logic to generate or assign the ID
+                                  attendance: false,
+                                  // Or your desired default value
+                                  studentId: studentId,
+                                  classId: selectedClass!.id,
+                                  // Your class ID
+                                  date: DateTime.now(),
+                                );
 
+                                // Add newAttendance to your attendance list
+                                attendanceRecords?.add(newAttendance);
+                              }
+                            }
+                            if (attendanceRecords == null ||
+                                attendanceRecords.isEmpty) {
+                              return const Center(
+                                child:
+                                    Text("No Attendance Records for this date"),
+                              );
+                            }
+                            if (attendanceSnapshot.hasData) {
+                              return SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 16,
+                                    ),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 16),
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFFF3F3F3)),
+                                      child: const Text(
+                                        'Name',
+                                        style: TextStyle(
+                                          color: Color(0xFF1C2244),
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Column(
+                                      children: List.generate(
+                                        attendanceRecords.length,
+                                        (index) => StudentsAttendanceCard(
+                                          attendance: attendanceRecords[index]!,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        },
+                      ),
+              ],
+            )
+          : const Center(
+              child: CircularProgressIndicator(),
+            ),
     );
     //!SECTION
   }

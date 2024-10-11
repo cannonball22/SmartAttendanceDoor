@@ -5,7 +5,6 @@ import 'package:form_controller/form_controller.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
 import '../../../../core/Services/Auth/AuthService.dart';
-import '../../../../core/utils/Loading/loading.helper.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/tertiary_button.dart';
 import '../../../home/presentation/pages/home.screen.dart';
@@ -138,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
               child: PrimaryButton(
                 title: "Sign in",
                 onPressed: () async {
-                  await LoadingHelper.start();
+                  // await LoadingHelper.start();
                   if (_formKey.currentState!.validate()) {
                     User? user = await AuthService().signInWithEmailAndPassword(
                         _formController.controller("email").text.trim(),
@@ -152,7 +151,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         (route) => false,
                       );
-                      await LoadingHelper.stop();
+                      // await LoadingHelper.stop();
                     }
                   }
                 },
