@@ -33,7 +33,7 @@ dependencies:
   streaming_shared_preferences: ^2.0.0
   cloud_firestore: ^5.0.2
   firebase_database: ^11.0.2
-
+  flutter_riverpod: ^2.5.1
   ## t2 -- Services
   flutter_localizations:
     sdk: flutter

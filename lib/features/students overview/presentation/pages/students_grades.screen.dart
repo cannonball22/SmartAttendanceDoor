@@ -276,7 +276,7 @@ class _StudentsGradeScreenState extends State<StudentsGradeScreen> {
                                                 if (studentSnapshot.hasError) {
                                                   return const Center(
                                                     child:
-                                                        Text("Error occured!"),
+                                                        Text("Error occurred!"),
                                                   );
                                                 }
                                                 if (studentSnapshot.hasData) {

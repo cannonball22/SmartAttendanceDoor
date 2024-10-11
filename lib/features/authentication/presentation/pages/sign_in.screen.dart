@@ -1,8 +1,11 @@
 //t2 Core Packages Imports
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
+import '../../../../core/Services/Auth/AuthService.dart';
+import '../../../../core/utils/Loading/loading.helper.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/tertiary_button.dart';
 import '../../../home/presentation/pages/home.screen.dart';
@@ -84,6 +87,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   TextFormField(
                     controller: _formController.controller("email"),
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       hintText: "Email",
                       border: OutlineInputBorder(),
@@ -92,8 +96,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[^@]+@hct\.ac\.ae$').hasMatch(value)) {
-                        return 'Please enter a valid email address ending with @hct.ac.ae';
+                      final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                      if (!emailRegExp.hasMatch(value)) {
+                        return 'Please enter a valid email address';
                       }
                       return null;
                     },
@@ -132,13 +137,24 @@ class _SignInScreenState extends State<SignInScreen> {
               width: double.infinity,
               child: PrimaryButton(
                 title: "Sign in",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const HomeScreen(),
-                    ),
-                  );
+                onPressed: () async {
+                  await LoadingHelper.start();
+                  if (_formKey.currentState!.validate()) {
+                    User? user = await AuthService().signInWithEmailAndPassword(
+                        _formController.controller("email").text.trim(),
+                        _formController.controller("password").text,
+                        context);
+                    if (user != null) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const HomeScreen(),
+                        ),
+                        (route) => false,
+                      );
+                      await LoadingHelper.stop();
+                    }
+                  }
                 },
               ),
             ),

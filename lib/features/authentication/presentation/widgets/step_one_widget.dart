@@ -100,6 +100,10 @@ class StepOneWidget extends StatelessWidget {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
+                  final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                  if (!emailRegExp.hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
                   return null;
                 },
               ),

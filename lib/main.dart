@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_attendance_door/theme.dart';
 import 'package:smart_attendance_door/util.dart';
 
@@ -13,7 +14,8 @@ Future<void> main() async {
   await App.initialize(AppEnvironment.dev);
 
   await FirebaseService.initialize();
-  runApp(const SmartAttendanceDoorApp());
+
+  runApp(const ProviderScope(child: SmartAttendanceDoorApp()));
 }
 
 class SmartAttendanceDoorApp extends StatelessWidget {

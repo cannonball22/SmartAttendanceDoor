@@ -5,6 +5,7 @@ import '../../../../Data/Model/Shared/gender.enum.dart';
 import '../../../../Data/Model/Shared/school_class.enum.dart';
 import '../../../../Data/Model/Shared/subject.enum.dart';
 import '../../../../core/Services/Auth/AuthService.dart';
+import '../../../../core/utils/Loading/loading.helper.dart';
 import '../../../home/presentation/pages/home.screen.dart';
 import '../widgets/step_one_widget.dart';
 import '../widgets/step_two_widget.dart';
@@ -101,6 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   createAccount() async {
+    await LoadingHelper.start();
     if (_formKey.currentState!.validate()) {
       bool success = await AuthService().signUpWithEmailAndPassword(
           email: emailController.text.trim(),
@@ -120,6 +122,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           (route) => false,
         );
+        await LoadingHelper.stop();
       }
     }
   }
