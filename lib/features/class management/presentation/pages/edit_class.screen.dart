@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
+import 'package:smart_attendance_door/Data/Repositories/user.repo.dart';
 import 'package:smart_attendance_door/core/widgets/primary_button.dart';
 
+import '../../../../Data/Model/App User/app_user.model.dart';
 import '../../../../Data/Model/Class/Class.model.dart';
 import '../../../../Data/Model/Shared/day_of_the_week.enum.dart';
 import '../../../../Data/Model/Shared/school_class.enum.dart';
 import '../../../../Data/Model/Shared/subject.enum.dart';
-import '../../../../Data/Model/Student/student.model.dart';
 import '../../../../Data/Repositories/class.repo.dart';
-import '../../../../Data/Repositories/student.repo.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 
 //t2 Dependencies Imports
@@ -44,11 +44,11 @@ class _EditClassScreenState extends State<EditClassScreen> {
   //t2 --State
   late SchoolClass selectedClass;
   late Subject selectedSubject;
-  late MultiSelectController<Student> multiSelectController;
+  late MultiSelectController<AppUser> multiSelectController;
   List<String>? selectedStudentsIds;
-  List<Student>? selectedStudents;
+  List<AppUser>? selectedStudents;
   late DayOfTheWeek selectedDayOfTheWeek;
-  late List<Student?>? allStudents;
+  late List<AppUser?>? allStudents;
   bool isLoaded = false;
   late FormController formController;
 
@@ -85,7 +85,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
       setState(() {
         allStudents = students;
         if (allStudents != null && allStudents!.isNotEmpty) {
-          multiSelectController = MultiSelectController<Student>();
+          multiSelectController = MultiSelectController<AppUser>();
 
           multiSelectController.setItems(List.generate(
             allStudents!.length,
@@ -112,8 +112,8 @@ class _EditClassScreenState extends State<EditClassScreen> {
     //!SECTION
   }
 
-  Future<List<Student?>?> fetchAllStudents() async {
-    return await StudentRepo().readAll();
+  Future<List<AppUser?>?> fetchAllStudents() async {
+    return await AppUserRepo().readAll();
   }
 
   @override

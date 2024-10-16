@@ -2,10 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:smart_attendance_door/Data/Model/Class/Class.model.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
 import 'package:smart_attendance_door/core/widgets/primary_button.dart';
 import 'package:smart_attendance_door/core/widgets/students_card_list.dart';
 
+import '../../../../Data/Model/Shared/user_role.enum.dart';
+import '../../../../Data/Repositories/user.repo.dart';
+import '../../../../core/Providers/src/condition_model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 
 //t2 Dependencies Imports
@@ -13,19 +15,19 @@ import '../../../../core/widgets/drop_down_menu.dart';
 //t3 Models
 //t1 Exports
 
-class SearchExistingStudent extends StatefulWidget {
+class SearchExistingUser extends StatefulWidget {
   //SECTION - Widget Arguments
   //!SECTION
   //
-  const SearchExistingStudent({
+  const SearchExistingUser({
     super.key,
   });
 
   @override
-  State<SearchExistingStudent> createState() => _SearchExistingStudentState();
+  State<SearchExistingUser> createState() => _SearchExistingUserState();
 }
 
-class _SearchExistingStudentState extends State<SearchExistingStudent> {
+class _SearchExistingUserState extends State<SearchExistingUser> {
   //
   //SECTION - State Variables
   //t2 --Controllers
@@ -88,7 +90,10 @@ class _SearchExistingStudentState extends State<SearchExistingStudent> {
     //SECTION - Build Return
     return Scaffold(
       body: FutureBuilder(
-        future: StudentRepo().readAll(),
+        future: AppUserRepo().readAllWhere([
+          QueryCondition.equals(
+              field: "userRole", value: UserRole.student.index)
+        ]),
         builder: (context, studentSnapshot) {
           if (studentSnapshot.connectionState == ConnectionState.done &&
               studentSnapshot.hasData) {
@@ -100,7 +105,7 @@ class _SearchExistingStudentState extends State<SearchExistingStudent> {
                   if (classesSnapshot.connectionState == ConnectionState.done) {
                     if (classesSnapshot.hasError) {
                       return const Center(
-                        child: Text("Error Fetcing classes"),
+                        child: Text("Error Fetching classes"),
                       );
                     }
                     if (classesSnapshot.hasData) {
@@ -192,9 +197,9 @@ class _SearchExistingStudentState extends State<SearchExistingStudent> {
                                                       studentSnapshot
                                                           .data![index]!
                                                           .classesIds
-                                                          .add(selectedClass!
+                                                          ?.add(selectedClass!
                                                               .id);
-                                                      await StudentRepo()
+                                                      await AppUserRepo()
                                                           .updateSingle(
                                                               studentSnapshot
                                                                   .data![index]!
@@ -220,7 +225,7 @@ class _SearchExistingStudentState extends State<SearchExistingStudent> {
                                   },
                                 );
                               },
-                              icon: Icon(Icons.add_box_outlined),
+                              icon: const Icon(Icons.add_box_outlined),
                             ),
                           ),
                         ),

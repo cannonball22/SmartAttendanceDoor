@@ -1,15 +1,13 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:smart_attendance_door/features/class%20management/presentation/pages/class_management.screen.dart';
-import 'package:smart_attendance_door/features/reports/presentation/pages/reports.screen.dart';
-import 'package:smart_attendance_door/features/student%20management/presentation/pages/student_management.screen.dart';
+import 'package:smart_attendance_door/Data/Model/Shared/user_role.enum.dart';
+import 'package:smart_attendance_door/features/home/presentation/pages/teacher_home_screen.dart';
 
 import '../../../../notifier.dart';
+import '../../../class management/presentation/pages/student_class_screen.dart';
 import '../../../profile/presentation/profile.screen.dart';
-import '../../../students overview/presentation/pages/students_attendance.screen.dart';
-import '../widgets/quick_action_container.dart';
+import 'admin_home_screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -59,140 +57,63 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
     //SECTION - Build Return
     return Scaffold(
-        appBar: null,
-        body: userValue.when(
-          data: (appUser) => SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+        appBar: userValue.when(
+          data: (appUser) => AppBar(
+            title: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 16,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Hello, ${appUser.name}',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) =>
-                                    const ProfileScreen(),
-                              ),
-                            );
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: const Color(0xFFF1EAFE),
-                            radius: 18,
-                            backgroundImage: (appUser.imageUrl != null &&
-                                    appUser.imageUrl!.isNotEmpty)
-                                ? NetworkImage(appUser.imageUrl!)
-                                : null,
-                            child: (appUser.imageUrl == null ||
-                                    appUser.imageUrl!.isEmpty)
-                                ? Icon(
-                                    Icons.person_outlined,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 18,
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 32,
-                  ),
                   Text(
-                    'Quick actions',
-                    style: Theme.of(context).textTheme.titleSmall,
+                    'Hello, ${appUser.name}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    children: [
-                      QuickActionContainer(
-                        title: "Students\nManagement",
-                        icon: FontAwesomeIcons.graduationCap,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  const StudentManagementScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      QuickActionContainer(
-                        title: "Classes\nManagement",
-                        icon: Icons.group,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  const ClassManagementScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    children: [
-                      QuickActionContainer(
-                        title: "Students\nAttendance",
-                        icon: Icons.check_circle_outline,
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) =>
-                                    const StudentsAttendanceScreen(),
-                              ));
-                        },
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      QuickActionContainer(
-                        title: "Reports\n",
-                        icon: Icons.stacked_bar_chart,
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) =>
-                                    const ReportsScreen(),
-                              ));
-                        },
-                      ),
-                    ],
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              const ProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: const Color(0xFFF1EAFE),
+                      radius: 18,
+                      backgroundImage: (appUser.imageUrl != null &&
+                              appUser.imageUrl!.isNotEmpty)
+                          ? NetworkImage(appUser.imageUrl!)
+                          : null,
+                      child: (appUser.imageUrl == null ||
+                              appUser.imageUrl!.isEmpty)
+                          ? Icon(
+                              Icons.person_outlined,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 18,
+                            )
+                          : null,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          loading: () => const CircularProgressIndicator(),
+          error: (Object error, StackTrace stackTrace) {},
+          loading: () {},
+        ),
+        body: userValue.when(
+          data: (appUser) {
+            if (appUser.userRole == UserRole.student) {
+              return const StudentClassScreen();
+            } else if (appUser.userRole == UserRole.teacher) {
+              return const TeacherHomeScreen();
+            } else {
+              return const AdminHomeScreen();
+            }
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, stack) => Text('Error: $err'),
         ));
     //!SECTION

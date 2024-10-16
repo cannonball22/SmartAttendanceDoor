@@ -1,26 +1,27 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
-import 'package:smart_attendance_door/features/student%20management/presentation/pages/create_new_student.screen.dart';
-import 'package:smart_attendance_door/features/student%20management/presentation/pages/search_existing_student.screen.dart';
+import 'package:smart_attendance_door/features/users%20management/presentation/pages/search_existing_users_screen.dart';
+
+import 'create_new_user_screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
 //t3 Models
 //t1 Exports
 
-class AddNewStudentScreen extends StatefulWidget {
+class AddNewUserScreen extends StatefulWidget {
   //SECTION - Widget Arguments
   //!SECTION
   //
-  const AddNewStudentScreen({
+  const AddNewUserScreen({
     super.key,
   });
 
   @override
-  State<AddNewStudentScreen> createState() => _AddNewStudentScreenState();
+  State<AddNewUserScreen> createState() => _AddNewUserScreenState();
 }
 
-class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
+class _AddNewUserScreenState extends State<AddNewUserScreen> {
   //
   //SECTION - State Variables
   //t2 --Controllers
@@ -95,8 +96,8 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
         ),
         body: const TabBarView(
           children: [
-            SearchExistingStudent(),
-            CreateNewStudentScreen(),
+            SearchExistingUser(),
+            CreateNewUserScreen(),
           ],
         ),
       ),

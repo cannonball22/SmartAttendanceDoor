@@ -6,8 +6,8 @@ import 'package:smart_attendance_door/Data/Model/Class/Class.model.dart';
 import 'package:smart_attendance_door/Data/Repositories/attendance.repo.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
 import 'package:smart_attendance_door/core/Providers/src/condition_model.dart';
+import 'package:smart_attendance_door/core/Services/Auth/AuthService.dart';
 
-import '../../../../Data/Model/Student/student.model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 import '../widgets/student_attendance.dart';
 
@@ -18,11 +18,13 @@ import '../widgets/student_attendance.dart';
 
 class StudentsAttendanceScreen extends StatefulWidget {
   //SECTION - Widget Arguments
+  final bool? isAdmin;
 
   //!SECTION
   //
   const StudentsAttendanceScreen({
     super.key,
+    this.isAdmin,
   });
 
   @override
@@ -43,7 +45,6 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
   Class? selectedClass;
   DateTime? selectedDate;
   List<Class?>? classes;
-  late List<Student> students;
   bool isLoaded = false;
 
   //t2 --State
@@ -59,12 +60,25 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
     //SECTION - State Variables initializations & Listeners
     //t2 --Controllers & Listeners
     _formController = FormController();
-    ClassRepo().readAll().then((val) {
-      setState(() {
-        classes = val;
-        isLoaded = true;
+    if (widget.isAdmin == true) {
+      ClassRepo().readAll().then((val) {
+        setState(() {
+          classes = val;
+          isLoaded = true;
+        });
       });
-    });
+    } else {
+      ClassRepo().readAllWhere([
+        QueryCondition.equals(
+            field: 'teacherId', value: AuthService().getCurrentUserId())
+      ]).then((val) {
+        setState(() {
+          classes = val;
+          isLoaded = true;
+        });
+      });
+    }
+
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -99,7 +113,6 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
           "${selectedDate?.month}/${selectedDate?.day}/${selectedDate?.year}";
 
       if (selectedClass != null && selectedDate != null) {
-        print("got called from fun");
         setState(() {});
       }
     }
@@ -269,23 +282,17 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen> {
                                     .toList() ??
                                 [];
 
-                            // Iterate over each student ID in StudentListIds
                             for (String studentId
                                 in selectedClass!.studentIds) {
                               if (!existingStudentIds.contains(studentId)) {
-                                // Create new Attendance object for the studentId
                                 Attendance newAttendance = Attendance(
                                   id: studentId,
-                                  // Your logic to generate or assign the ID
                                   attendance: false,
-                                  // Or your desired default value
                                   studentId: studentId,
                                   classId: selectedClass!.id,
-                                  // Your class ID
                                   date: DateTime.now(),
                                 );
 
-                                // Add newAttendance to your attendance list
                                 attendanceRecords?.add(newAttendance);
                               }
                             }

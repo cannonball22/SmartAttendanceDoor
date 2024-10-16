@@ -2,11 +2,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
-import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
 import '../../../../core/Services/Auth/AuthService.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/tertiary_button.dart';
 import '../../../home/presentation/pages/home.screen.dart';
 
 //t2 Dependencies Imports
@@ -157,30 +155,29 @@ class _SignInScreenState extends State<SignInScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Don’t have an account yet?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                TertiaryButton(
-                  title: "Sign Up",
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const SignUpScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     const Text(
+            //       'Don’t have an account yet?',
+            //       style: TextStyle(
+            //         fontSize: 14,
+            //         fontWeight: FontWeight.w500,
+            //       ),
+            //     ),
+            //     TertiaryButton(
+            //       title: "Sign Up",
+            //       onPressed: () {
+            //         Navigator.pushReplacement(
+            //           context,
+            //           MaterialPageRoute<void>(
+            //             builder: (BuildContext context) => const SignUpScreen(),
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 42),
           ],
         ),

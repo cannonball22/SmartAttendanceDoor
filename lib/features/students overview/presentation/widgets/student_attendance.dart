@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_attendance_door/Data/Model/Attendance/attendance.model.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
+
+import '../../../../Data/Repositories/user.repo.dart';
 
 class StudentsAttendanceCard extends StatelessWidget {
   final Attendance attendance;
@@ -24,7 +25,7 @@ class StudentsAttendanceCard extends StatelessWidget {
           ),
         ),
         child: FutureBuilder(
-          future: StudentRepo().readSingle(attendance.studentId),
+          future: AppUserRepo().readSingle(attendance.studentId),
           builder: (context, studentSnapshot) {
             if (studentSnapshot.connectionState == ConnectionState.done) {
               if (studentSnapshot.hasError) {
@@ -37,8 +38,12 @@ class StudentsAttendanceCard extends StatelessWidget {
                     Row(
                       children: [
                         CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(studentSnapshot.data!.imageUrl),
+                          backgroundImage: studentSnapshot.data!.imageUrl !=
+                                  null
+                              ? NetworkImage(studentSnapshot.data!.imageUrl!)
+                              : const AssetImage(
+                                      'assets/images/default_avatar.png')
+                                  as ImageProvider,
                           radius: 24,
                         ),
                         const SizedBox(
@@ -75,12 +80,11 @@ class StudentsAttendanceCard extends StatelessWidget {
                       child: Text(
                         (attendance.attendance == false) ? 'Absent' : "Present",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
-                          letterSpacing: 0.10,
                         ),
                       ),
                     )

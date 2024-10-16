@@ -1,10 +1,10 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
+import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
 import 'package:smart_attendance_door/Data/Model/Shared/subject.enum.dart';
 import 'package:smart_attendance_door/Data/Repositories/grade.repo.dart';
 
 import '../../../../Data/Model/Grade/grade.model.dart';
-import '../../../../Data/Model/Student/student.model.dart';
 import '../../../../core/Providers/src/condition_model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 
@@ -15,7 +15,7 @@ import '../../../../core/widgets/drop_down_menu.dart';
 
 class StudentGradesScreen extends StatefulWidget {
   //SECTION - Widget Arguments
-  final Student student;
+  final AppUser student;
 
   //!SECTION
   //

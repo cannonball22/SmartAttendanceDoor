@@ -7,13 +7,11 @@ import 'package:form_controller/form_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
 import 'package:smart_attendance_door/Data/Model/Shared/gender.enum.dart';
-import 'package:smart_attendance_door/Data/Model/Shared/school_class.enum.dart';
 import 'package:smart_attendance_door/Data/Repositories/user.repo.dart';
 import 'package:smart_attendance_door/core/widgets/drop_down_menu.dart';
 import 'package:smart_attendance_door/core/widgets/primary_button.dart';
 import 'package:smart_attendance_door/core/widgets/secondary_button.dart';
 
-import '../../../Data/Model/Shared/subject.enum.dart';
 import '../../../core/Services/Imaging/imaging.service.dart';
 
 //t2 Dependencies Imports
@@ -39,9 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   //t2 --Controllers
   late FormController _formController;
   late Gender selectedGender;
-  late List<SchoolClass> selectedClass;
   XFile? profileImage;
-  late Subject selectedSubject;
   final _formKey = GlobalKey<FormState>();
 
   //t2 --Controllers
@@ -65,8 +61,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _formController.controller("phoneNumber").text = widget.appUser.phoneNumber;
     _formController.controller("dateOfBirth").text = widget.appUser.dateOfBirth;
     selectedGender = widget.appUser.gender;
-    selectedClass = widget.appUser.schoolClasses;
-    selectedSubject = widget.appUser.subject;
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -364,7 +358,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             _formController.controller("dateOfBirth").text;
                         widget.appUser.phoneNumber =
                             _formController.controller("phoneNumber").text;
-                        widget.appUser.subject = selectedSubject;
 
                         await AppUserRepo()
                             .updateSingle(widget.appUser.id, widget.appUser);

@@ -1,7 +1,7 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
 import 'package:form_controller/form_controller.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
+import 'package:smart_attendance_door/Data/Repositories/user.repo.dart';
 import 'package:smart_attendance_door/core/Providers/src/condition_model.dart';
 
 import '../../../../Data/Model/Class/Class.model.dart';
@@ -265,7 +265,7 @@ class _StudentsGradeScreenState extends State<StudentsGradeScreen> {
                                         children: List.generate(
                                           gradeSnapshot.data!.length,
                                           (index) => FutureBuilder(
-                                            future: StudentRepo().readSingle(
+                                            future: AppUserRepo().readSingle(
                                                 gradeSnapshot
                                                     .data![index]!.studentId),
                                             builder:

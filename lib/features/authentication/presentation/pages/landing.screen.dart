@@ -1,8 +1,6 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
-import 'package:smart_attendance_door/core/widgets/tertiary_button.dart';
 import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_in.screen.dart';
-import 'package:smart_attendance_door/features/authentication/presentation/pages/sign_up.screen.dart';
 
 import '../../../../core/widgets/primary_button.dart';
 
@@ -86,42 +84,42 @@ class LandingScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: PrimaryButton(
-                title: "Get Started",
+                title: "Sign in",
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const SignUpScreen(),
+                      builder: (BuildContext context) => const SignInScreen(),
                     ),
                   );
                 },
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Already have an account?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                TertiaryButton(
-                  title: "Sign in",
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const SignInScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+            // const SizedBox(height: 16),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     const Text(
+            //       'Already have an account?',
+            //       style: TextStyle(
+            //         fontSize: 14,
+            //         fontFamily: 'Poppins',
+            //         fontWeight: FontWeight.w500,
+            //       ),
+            //     ),
+            //     TertiaryButton(
+            //       title: "Sign in",
+            //       onPressed: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute<void>(
+            //             builder: (BuildContext context) => const SignInScreen(),
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 42),
           ],
         ),

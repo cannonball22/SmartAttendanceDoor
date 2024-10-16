@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
-import 'package:smart_attendance_door/Data/Model/Student/student.model.dart';
+import 'package:smart_attendance_door/Data/Model/Shared/user_role.enum.dart';
 import 'package:smart_attendance_door/Data/Repositories/attendance.repo.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
+import 'package:smart_attendance_door/Data/Repositories/user.repo.dart';
 import 'package:smart_attendance_door/core/Providers/src/condition_model.dart';
 
+import '../../../../Data/Model/App User/app_user.model.dart';
 import '../../../../Data/Model/Attendance Report/attendance_report.model.dart';
 import '../../../../Data/Model/Attendance/attendance.model.dart';
 import '../../../../Data/Model/Class/Class.model.dart';
@@ -41,7 +42,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   //t2 --Controllers
   //
   //t2 --State
-  Student? selectedStudent;
+  AppUser? selectedStudent;
   List<AttendanceReport> attendanceReport = [];
 
   //t2 --State
@@ -241,7 +242,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
             : null,
       ),
       body: FutureBuilder(
-          future: StudentRepo().readAll(),
+          future: AppUserRepo().readAllWhere([
+            QueryCondition.equals(
+                field: "userRole", value: UserRole.student.index)
+          ]),
           builder: (context, studentsSnapshot) {
             if (studentsSnapshot.connectionState == ConnectionState.done &&
                 studentsSnapshot.hasData &&
@@ -257,26 +261,31 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: DropDownMenu<Student>(
+                          child: DropDownMenu<AppUser>(
                             hintText: "Select Student",
                             value: selectedStudent,
                             items: studentsSnapshot.data!
                                 .map(
-                                  (studentItem) => DropdownMenuItem<Student>(
+                                  (studentItem) => DropdownMenuItem<AppUser>(
                                     value: studentItem,
                                     child: Row(
                                       children: [
                                         CircleAvatar(
+                                          backgroundImage: studentItem
+                                                      ?.imageUrl !=
+                                                  null
+                                              ? NetworkImage(
+                                                  studentItem!.imageUrl!)
+                                              : const AssetImage(
+                                                      'assets/images/default_avatar.png')
+                                                  as ImageProvider,
                                           radius: 24,
-                                          backgroundImage: NetworkImage(
-                                            studentItem!.imageUrl,
-                                          ),
                                         ),
                                         const SizedBox(
                                           width: 8,
                                         ),
                                         Text(
-                                          studentItem.name,
+                                          studentItem!.name,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium,
@@ -286,7 +295,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                   ),
                                 )
                                 .toList(),
-                            onChanged: (Student? newValue) {
+                            onChanged: (AppUser? newValue) {
                               setState(() {
                                 selectedStudent = newValue;
                               });

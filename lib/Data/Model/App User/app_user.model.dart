@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:smart_attendance_door/Data/Model/Shared/user_role.enum.dart';
+
 import '../Shared/gender.enum.dart';
-import '../Shared/school_class.enum.dart';
-import '../Shared/subject.enum.dart';
 
 class AppUser {
   String id;
@@ -10,28 +10,25 @@ class AppUser {
   String name;
   String? imageUrl;
   Gender gender;
-  Subject subject;
-  List<SchoolClass> schoolClasses;
   String dateOfBirth;
   String phoneNumber;
+  UserRole userRole;
 
+  //
+  String? parentPhoneNumber;
   List<String>? classesIds;
-  List<String>? subjectsIds;
 
-  //
-  //
   AppUser({
     required this.id,
     required this.email,
     this.imageUrl,
     required this.name,
     required this.gender,
-    required this.schoolClasses,
-    required this.subject,
     required this.dateOfBirth,
     required this.phoneNumber,
+    this.parentPhoneNumber,
+    required this.userRole,
     this.classesIds,
-    this.subjectsIds,
   });
 
   Map<String, dynamic> toMap() {
@@ -41,12 +38,11 @@ class AppUser {
       "imageUrl": imageUrl,
       'fullName': name,
       "gender": gender.index,
-      "subject": subject.index,
-      "schoolClasses": schoolClasses.map((e) => e.index).toList(),
+      "userRole": userRole.index,
       "classesIds": classesIds,
       "dateOfBirth": dateOfBirth,
       "phoneNumber": phoneNumber,
-      "subjectsIds": subjectsIds,
+      "parentPhoneNumber": parentPhoneNumber,
     };
   }
 
@@ -57,17 +53,12 @@ class AppUser {
       imageUrl: map['imageUrl'],
       name: map['fullName'],
       gender: Gender.values[map["gender"]],
-      schoolClasses: List<SchoolClass>.from(
-          (map["schoolClasses"] as List<dynamic>)
-              .map((e) => SchoolClass.values[e])),
-      subject: Subject.values[map["subject"]],
+      userRole: UserRole.values[map["userRole"]],
       dateOfBirth: map["dateOfBirth"],
       phoneNumber: map["phoneNumber"],
+      parentPhoneNumber: map["parentPhoneNumber"],
       classesIds: map['classesIds'] != null
           ? List<String>.from(map['classesIds'] as List<dynamic>)
-          : [],
-      subjectsIds: map['subjectsIds'] != null
-          ? List<String>.from(map['subjectsIds'] as List<dynamic>)
           : [],
     );
   }
@@ -76,4 +67,14 @@ class AppUser {
 
   factory AppUser.fromJson(String source) =>
       AppUser.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  bool operator ==(covariant AppUser other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

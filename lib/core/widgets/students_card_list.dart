@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smart_attendance_door/Data/Model/Student/student.model.dart';
+import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
 
 class StudentsCard extends StatelessWidget {
-  final Student student;
+  final AppUser student;
   final Widget trailing;
 
   const StudentsCard({
@@ -30,7 +30,10 @@ class StudentsCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(student.imageUrl),
+                  backgroundImage: student.imageUrl != null
+                      ? NetworkImage(student.imageUrl!)
+                      : const AssetImage('assets/images/default_avatar.png')
+                          as ImageProvider,
                   radius: 24,
                 ),
                 const SizedBox(

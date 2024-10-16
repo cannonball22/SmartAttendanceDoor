@@ -1,22 +1,25 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
+import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
+import 'package:smart_attendance_door/Data/Model/Shared/user_role.enum.dart';
 import 'package:smart_attendance_door/core/widgets/students_card_list.dart';
 import 'package:smart_attendance_door/core/widgets/tertiary_button.dart';
 import 'package:smart_attendance_door/features/class%20management/presentation/pages/edit_class.screen.dart';
-import 'package:smart_attendance_door/features/student%20management/presentation/pages/student_details.screen.dart';
 
 import '../../../../Data/Model/Class/Class.model.dart';
 import '../../../../Data/Model/Shared/day_of_the_week.enum.dart';
-import '../../../../Data/Model/Student/student.model.dart';
+import '../../../../Data/Repositories/user.repo.dart';
+import '../../../../notifier.dart';
+import '../../../users management/presentation/pages/student_details.screen.dart';
 
 //t2 Dependencies Imports
 //t3 Services
 //t3 Models
 //t1 Exports
 
-class ClassDetailsScreen extends StatefulWidget {
+class ClassDetailsScreen extends ConsumerWidget {
   //SECTION - Widget Arguments
   final Class selectedClass;
 
@@ -27,56 +30,14 @@ class ClassDetailsScreen extends StatefulWidget {
     required this.selectedClass,
   });
 
-  @override
-  State<ClassDetailsScreen> createState() => _ClassDetailsScreenState();
-}
-
-class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
-  //
-  //SECTION - State Variables
-  //t2 --Controllers
-  //t2 --Controllers
-  //
-  //t2 --State
-  //t2 --State
-  //
-  //t2 --Constants
-  //t2 --Constants
-  //!SECTION
-
-  @override
-  void initState() {
-    super.initState();
-    //
-    //SECTION - State Variables initializations & Listeners
-    //t2 --Controllers & Listeners
-    //t2 --Controllers & Listeners
-    //
-    //t2 --State
-    //t2 --State
-    //
-    //t2 --Late & Async Initializers
-    //t2 --Late & Async Initializers
-    //!SECTION
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //
-    //SECTION - State Variables initializations & Listeners
-    //t2 --State
-    //t2 --State
-    //!SECTION
-  }
-
   //SECTION - Stateless functions
-  //!SECTION
-  Future<List<Student?>> getClassStudents() async {
-    List<String> studentIds = widget.selectedClass.studentIds;
-    List<Student?> students = [];
+  Future<List<AppUser?>> getClassStudents() async {
+    List<String> studentIds = selectedClass.studentIds;
+    List<AppUser> students = [];
+
     for (String studentId in studentIds) {
-      Student? fetchedStudent = await StudentRepo().readSingle(studentId);
+      AppUser? fetchedStudent = await AppUserRepo().readSingle(studentId);
+
       if (fetchedStudent != null) {
         students.add(fetchedStudent);
       }
@@ -85,16 +46,15 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
   }
 
   //SECTION - Action Callbacks
-  //!SECTION
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     //SECTION - Build Setup
     //t2 -Values
     //double w = MediaQuery.of(context).size.width;
     //double h = MediaQuery.of(context).size.height;
     //t2 -Values
     //
+    final userValue = ref.watch(userProvider);
     //t2 -Widgets
     //t2 -Widgets
     //!SECTION
@@ -116,17 +76,26 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Class Info"),
-                TertiaryButton(
-                    title: "Edit",
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) => EditClassScreen(
-                              selectedClass: widget.selectedClass),
-                        ),
-                      );
-                    })
+                userValue.when(data: (appUser) {
+                  if (appUser.userRole == UserRole.admin) {
+                    return TertiaryButton(
+                        title: "Edit",
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  EditClassScreen(selectedClass: selectedClass),
+                            ),
+                          );
+                        });
+                  }
+                  return Container();
+                }, error: (Object error, StackTrace stackTrace) {
+                  return Container();
+                }, loading: () {
+                  return Container();
+                })
               ],
             ),
             const SizedBox(
@@ -145,7 +114,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 )),
                 Expanded(
                     child: Text(
-                  widget.selectedClass.name,
+                  selectedClass.name,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -170,7 +139,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    "${widget.selectedClass.studentIds.length} total students",
+                    "${selectedClass.studentIds.length} total students",
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -197,7 +166,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 Expanded(
                   child: Text(
                     DateFormat('yyyy-MM-dd')
-                        .format(widget.selectedClass.startSemesterDate),
+                        .format(selectedClass.startSemesterDate),
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -224,7 +193,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 Expanded(
                   child: Text(
                     DateFormat('yyyy-MM-dd')
-                        .format(widget.selectedClass.endSemesterDate),
+                        .format(selectedClass.endSemesterDate),
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -250,7 +219,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    "${DayOfTheWeek.values[widget.selectedClass.weeklySubjectDate.index].name} ${widget.selectedClass.weeklySubjectTime}",
+                    "${DayOfTheWeek.values[selectedClass.weeklySubjectDate.index].name} ${selectedClass.weeklySubjectTime}",
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -269,7 +238,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
               height: 16,
             ),
             Text(
-              "Students of class ${widget.selectedClass.name}",
+              "Students of class ${selectedClass.name}",
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -303,7 +272,7 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
                                 ),
                               );
                             },
-                            icon: Icon(Icons.arrow_forward_ios_outlined),
+                            icon: const Icon(Icons.arrow_forward_ios_outlined),
                           ),
                         ),
                       ),
@@ -325,12 +294,5 @@ class _ClassDetailsScreenState extends State<ClassDetailsScreen> {
       ),
     );
     //!SECTION
-  }
-
-  @override
-  void dispose() {
-    //SECTION - Disposable variables
-    //!SECTION
-    super.dispose();
   }
 }

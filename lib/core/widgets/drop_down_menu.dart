@@ -53,7 +53,6 @@ class DropDownMenu<T> extends StatelessWidget {
         border: const OutlineInputBorder(),
         label: Text(labelText ?? ""),
         hintText: hintText,
-        // contentPadding: EdgeInsets.all(16)
       ),
     );
     //!SECTION

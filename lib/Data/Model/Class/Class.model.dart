@@ -7,6 +7,7 @@ import '../Shared/subject.enum.dart';
 class Class {
   String id;
   String name;
+  String teacherId;
   SchoolClass schoolClass;
   Subject subject;
   List<String> studentIds;
@@ -21,6 +22,7 @@ class Class {
     required this.schoolClass,
     required this.subject,
     required this.studentIds,
+    required this.teacherId,
     required this.startSemesterDate,
     required this.endSemesterDate,
     required this.weeklySubjectDate,
@@ -31,6 +33,7 @@ class Class {
     return <String, dynamic>{
       'id': id,
       'name': name,
+      "teacherId": teacherId,
       "schoolClass": schoolClass.index,
       "subject": subject.index,
       "studentIds": studentIds,
@@ -42,10 +45,10 @@ class Class {
   }
 
   factory Class.fromMap(Map<String, dynamic> map) {
-
     return Class(
       id: map['id'] as String,
       name: map['name'] as String,
+      teacherId: map['teacherId'] as String,
       schoolClass: SchoolClass.values[map["schoolClass"]],
       subject: Subject.values[map["subject"]],
       studentIds: map['studentIds'] != null

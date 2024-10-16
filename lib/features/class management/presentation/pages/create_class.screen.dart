@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
+import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
+import 'package:smart_attendance_door/Data/Model/Shared/user_role.enum.dart';
+import 'package:smart_attendance_door/Data/Repositories/user.repo.dart';
 import 'package:smart_attendance_door/core/Services/Id%20Generating/id_generating.service.dart';
 import 'package:smart_attendance_door/core/widgets/primary_button.dart';
 
@@ -10,7 +12,6 @@ import '../../../../Data/Model/Class/Class.model.dart';
 import '../../../../Data/Model/Shared/day_of_the_week.enum.dart';
 import '../../../../Data/Model/Shared/school_class.enum.dart';
 import '../../../../Data/Model/Shared/subject.enum.dart';
-import '../../../../Data/Model/Student/student.model.dart';
 import '../../../../Data/Repositories/class.repo.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
 
@@ -23,12 +24,14 @@ class CreateClassScreen extends StatefulWidget {
 
 class _CreateClassScreenState extends State<CreateClassScreen> {
   final _formKey = GlobalKey<FormState>();
+  List<AppUser> students = [];
+  List<AppUser> teachers = [];
+  AppUser? selectedTeacher;
   SchoolClass? selectedClass;
   Subject? selectedSubject;
   DayOfTheWeek? selectedDayOfTheWeek;
-  List<Student>? selectedStudents;
+  List<AppUser>? selectedStudents;
   late FormController formController;
-
 
   @override
   void initState() {
@@ -59,10 +62,14 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
             schoolClass: selectedClass!,
             subject: selectedSubject!,
             studentIds: selectedStudents!.map((value) => value.id).toList(),
-            startSemesterDate: DateTime.parse(formController.controller("startSemesterDate").text),
-            endSemesterDate: DateTime.parse(formController.controller("endSemesterDate").text),
+            startSemesterDate: DateTime.parse(
+                formController.controller("startSemesterDate").text),
+            endSemesterDate: DateTime.parse(
+                formController.controller("endSemesterDate").text),
             weeklySubjectDate: selectedDayOfTheWeek!,
-            weeklySubjectTime: formController.controller("weeklySubjectTime").text,
+            weeklySubjectTime:
+                formController.controller("weeklySubjectTime").text,
+            teacherId: selectedTeacher!.id,
           ),
           itemId: classId,
         );
@@ -118,6 +125,23 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
     }
   }
 
+  Future<void> runAllFutures() async {
+    List<AppUser?>? allUsers = await AppUserRepo().readAll();
+
+    if (allUsers != null) {
+      for (AppUser? appUser in allUsers) {
+        if (appUser != null) {
+          if (appUser.userRole == UserRole.student) {
+            students.add(appUser);
+          } else if (appUser.userRole == UserRole.teacher) {
+            teachers.add(appUser);
+          }
+        }
+      }
+    }
+
+    return;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,10 +153,9 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
         centerTitle: true,
       ),
       body: FutureBuilder(
-          future: StudentRepo().readAll(),
+          future: runAllFutures(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.done) {
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
@@ -146,7 +169,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                         height: 8,
                       ),
                       DropDownMenu(
-                        hintText: "Select the class you teach",
+                        hintText: "Select the class name",
                         value: selectedClass,
                         items:
                             List.generate(SchoolClass.values.length, (index) {
@@ -158,7 +181,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                         }),
                         validator: (value) {
                           if (selectedClass == null) {
-                            return 'Select a class that you teach';
+                            return 'Select a class';
                           }
                           return null;
                         },
@@ -166,6 +189,34 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           selectedClass = newValue!;
                           // setState(() {
                           // });
+                        },
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Text('Teacher Name:',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      DropDownMenu<AppUser>(
+                        hintText: "Select the teacher name",
+                        value: selectedTeacher,
+                        items: List.generate(teachers.length, (index) {
+                          AppUser teacher = teachers[index];
+                          return DropdownMenuItem<AppUser>(
+                            value: teacher,
+                            child: Text(teacher.name),
+                          );
+                        }),
+                        validator: (value) {
+                          if (selectedTeacher == null) {
+                            return 'Select a teacher';
+                          }
+                          return null;
+                        },
+                        onChanged: (AppUser? newValue) {
+                          selectedTeacher = newValue!;
                         },
                       ),
                       const SizedBox(
@@ -179,7 +230,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                         height: 8,
                       ),
                       DropDownMenu(
-                        hintText: "Select the subject you teach",
+                        hintText: "Select the subject",
                         value: selectedSubject,
                         items: List.generate(Subject.values.length, (index) {
                           Subject subject = Subject.values[index];
@@ -190,7 +241,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                         }),
                         validator: (value) {
                           if (selectedSubject == null) {
-                            return 'Select a subject that you teach';
+                            return 'Select a subject';
                           }
                           return null;
                         },
@@ -208,12 +259,12 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       const SizedBox(
                         height: 8,
                       ),
-                      MultiDropdown<Student>(
+                      MultiDropdown<AppUser>(
                         items: List.generate(
-                          snapshot.data!.length,
+                          students?.length ?? 0,
                           (index) => DropdownItem(
-                            label: snapshot.data![index]!.name,
-                            value: snapshot.data![index]!,
+                            label: students![index].name,
+                            value: students![index],
                           ),
                         ),
                         fieldDecoration: const FieldDecoration(
@@ -250,7 +301,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                         ),
                         readOnly: true,
                         onTap: () async {
-                          DateTime? selectedDate = await  showDatePicker(
+                          DateTime? selectedDate = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(1900),
@@ -258,11 +309,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           );
                           if (selectedDate != null &&
                               selectedDate != DateTime.now()) {
-                              formController
-                                      .controller("startSemesterDate")
-                                      . text = "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-
-                        }
+                            formController
+                                    .controller("startSemesterDate")
+                                    .text =
+                                "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                          }
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -296,16 +347,20 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                           );
                           if (selectedDate != null &&
                               selectedDate != DateTime.now()) {
-                            formController
-                                .controller("endSemesterDate")
-                                .text = "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                            formController.controller("endSemesterDate").text =
+                                "${selectedDate.toLocal().year.toString().padLeft(4, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                           }
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'End semester date cannot be empty';
                           }
-                          if(DateTime.parse(formController.controller("endSemesterDate").text).isBefore(DateTime.parse(formController.controller("startSemesterDate").text))){
+                          if (DateTime.parse(formController
+                                  .controller("endSemesterDate")
+                                  .text)
+                              .isBefore(DateTime.parse(formController
+                                  .controller("startSemesterDate")
+                                  .text))) {
                             return 'End semester date should be after Start semester';
                           }
                           return null;
@@ -322,8 +377,10 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       DropDownMenu(
                         hintText: "Select weekly day",
                         value: selectedDayOfTheWeek,
-                        items: List.generate(DayOfTheWeek.values.length, (index) {
-                          DayOfTheWeek dayOfTheWeek = DayOfTheWeek.values[index];
+                        items:
+                            List.generate(DayOfTheWeek.values.length, (index) {
+                          DayOfTheWeek dayOfTheWeek =
+                              DayOfTheWeek.values[index];
                           return DropdownMenuItem<DayOfTheWeek>(
                             value: dayOfTheWeek,
                             child: Text(dayOfTheWeek.name),
@@ -360,11 +417,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                             context: context,
                             initialTime: TimeOfDay.now(),
                           );
-                          if (selectedTime != null ) {
-                              formController
-                                      .controller("weeklySubjectTime")
-                                      .text =
-                                  "${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}";
+                          if (selectedTime != null) {
+                            formController
+                                    .controller("weeklySubjectTime")
+                                    .text =
+                                "${selectedTime.hour}:${selectedTime.minute} ${selectedTime.period.name}";
                           }
                         },
                         validator: (value) {

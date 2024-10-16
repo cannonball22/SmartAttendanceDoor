@@ -1,43 +1,39 @@
 //t2 Core Packages Imports
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_controller/form_controller.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:smart_attendance_door/Data/Model/App%20User/app_user.model.dart';
 import 'package:smart_attendance_door/Data/Model/Class/Class.model.dart';
 import 'package:smart_attendance_door/Data/Model/Shared/gender.enum.dart';
-import 'package:smart_attendance_door/Data/Model/Student/student.model.dart';
 import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
-import 'package:smart_attendance_door/Data/Repositories/student.repo.dart';
 import 'package:smart_attendance_door/core/Services/Imaging/imaging.service.dart';
 import 'package:smart_attendance_door/core/widgets/drop_down_menu.dart';
 import 'package:smart_attendance_door/core/widgets/primary_button.dart';
 
-import '../../../../core/Services/Firebase Storage/firebase_storage.service.dart';
-import '../../../../core/Services/Firebase Storage/src/models/storage_file.model.dart';
-import '../../../../core/Services/Id Generating/id_generating.service.dart';
-import '../../../../core/utils/SnackBar/snackbar.helper.dart';
+import '../../../../Data/Repositories/user.repo.dart';
+import '../../../../core/widgets/secondary_button.dart';
 
 //t2 Dependencies Imports
 //t3 Services
 //t3 Models
 //t1 Exports
 
-class CreateNewStudentScreen extends StatefulWidget {
+class EditStudentScreen extends StatefulWidget {
   //SECTION - Widget Arguments
+  final AppUser student;
 
   //!SECTION
   //
-  const CreateNewStudentScreen({
+  const EditStudentScreen({
     super.key,
+    required this.student,
   });
 
   @override
-  State<CreateNewStudentScreen> createState() => _CreateNewStudentScreenState();
+  State<EditStudentScreen> createState() => _EditStudentScreenState();
 }
 
-class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
+class _EditStudentScreenState extends State<EditStudentScreen> {
   //
   //SECTION - State Variables
   //t2 --Controllers
@@ -64,6 +60,14 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
     //SECTION - State Variables initializations & Listeners
     //t2 --Controllers & Listeners
     _formController = FormController();
+    _formController.controller("fullName").text = widget.student.name;
+    _formController.controller("email").text = widget.student.email;
+    _formController.controller("dateOfBirth").text = widget.student.dateOfBirth;
+    _formController.controller("phoneNumber").text = widget.student.phoneNumber;
+    _formController.controller("parentPhoneNumber").text =
+        widget.student.parentPhoneNumber ?? "";
+    // selectedClass;
+    selectedGender = widget.student.gender;
     //t2 --Controllers & Listeners
     //
     //t2 --State
@@ -119,6 +123,24 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
 
     //SECTION - Build Return
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Edit Student"),
+        centerTitle: true,
+        actions: [
+          // TextButton(
+          //   onPressed: () {},
+          //   child: const Text(
+          //     'Delete',
+          //     style: TextStyle(
+          //       color: Color(0xFFBA1A1A),
+          //       fontSize: 16,
+          //       fontFamily: 'Poppins',
+          //       fontWeight: FontWeight.w600,
+          //     ),
+          //   ),
+          // )
+        ],
+      ),
       body: FutureBuilder(
         future: ClassRepo().readAll(),
         builder: (context, classesSnapshot) {
@@ -138,23 +160,29 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
                               await ImagingService.captureSingleImages();
                           setState(() {});
                         },
-                        child: CircleAvatar(
-                          backgroundColor: const Color(0xFFF1EAFE),
-                          radius: 36,
-                          child: profileImage == null
-                              ? const Icon(
-                                  Icons.person_outlined,
-                                  size: 48,
-                                  // color: Color(0xff824AFD),
-                                )
-                              : ClipOval(
-                                  child: Image.file(
-                                    File(profileImage!.path),
-                                    fit: BoxFit.cover,
-                                    width: 72,
-                                    height: 72,
-                                  ),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: widget.student.imageUrl != null
+                                  ? NetworkImage(widget.student.imageUrl!)
+                                  : const AssetImage(
+                                          'assets/images/default_avatar.png')
+                                      as ImageProvider,
+                              radius: 38,
+                            ),
+                            const Positioned(
+                              right: 2,
+                              bottom: -11,
+                              child: CircleAvatar(
+                                backgroundColor: Color(0xFFFAAD49),
+                                child: Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.white,
                                 ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ),
@@ -324,34 +352,34 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    Text(
-                      "Class:",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    DropDownMenu(
-                      hintText: "Select Class",
-                      value: selectedClass,
-                      items: List.generate(
-                        classesSnapshot.data?.length ?? 0,
-                        (index) => DropdownMenuItem(
-                          value: classesSnapshot.data![index],
-                          child: Text(classesSnapshot.data![index]!.name,
-                              style: Theme.of(context).textTheme.bodySmall),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || selectedClass == null) {
-                          return "Please enter student's class";
-                        }
-                        return null;
-                      },
-                      onChanged: (Class? newValue) {
-                        selectedClass = newValue;
-                      },
-                    ),
+                    // Text(
+                    //   "Class:",
+                    //   style: Theme.of(context).textTheme.titleMedium,
+                    // ),
+                    // const SizedBox(
+                    //   height: 4,
+                    // ),
+                    // DropDownMenu(
+                    //   hintText: "Select Class",
+                    //   value: selectedClass,
+                    //   items: List.generate(
+                    //     classesSnapshot.data?.length ?? 0,
+                    //     (index) => DropdownMenuItem(
+                    //       value: classesSnapshot.data![index],
+                    //       child: Text(classesSnapshot.data![index]!.name,
+                    //           style: Theme.of(context).textTheme.bodySmall),
+                    //     ),
+                    //   ),
+                    //   validator: (value) {
+                    //     if (value == null || selectedClass == null) {
+                    //       return "Please enter student's class";
+                    //     }
+                    //     return null;
+                    //   },
+                    //   onChanged: (Class? newValue) {
+                    //     selectedClass = newValue;
+                    //   },
+                    // ),
                   ],
                 ),
               ),
@@ -363,116 +391,41 @@ class _CreateNewStudentScreenState extends State<CreateNewStudentScreen> {
         },
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                title: "Add Student",
-                onPressed: () async {
-                  if (profileImage == null) {
-                    SnackbarHelper.showTemplated(
-                      context,
-                      title: "Please provide an image for the student",
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      titleStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onError,
-                      ),
-                    );
-                    return;
-                  }
-                  if (_formKey.currentState!.validate()) {
-                    String studentId = IdGeneratingService.generate();
-                    await FirebaseStorageService.uploadSingle(
-                        '/students/$studentId',
-                        StorageFile(
-                          data: await profileImage!.readAsBytes(),
-                          fileName: "userProfilePicture",
-                          fileExtension: "jpeg",
-                        ))?.then((p0) async {
-                      StudentRepo().createSingle(
-                        itemId: studentId,
-                        Student(
-                          id: studentId,
-                          name: _formController
-                              .controller("fullName")
-                              .text
-                              .trim(),
-                          imageUrl: await p0.ref.getDownloadURL(),
-                          gender: selectedGender!,
-                          email:
-                              _formController.controller("email").text.trim(),
-                          dateOfBirth: _formController
-                              .controller("dateOfBirth")
-                              .text
-                              .trim(),
-                          phoneNumber: _formController
-                              .controller("phoneNumber")
-                              .text
-                              .trim(),
-                          parentPhoneNumber: _formController
-                              .controller("parentPhoneNumber")
-                              .text
-                              .trim(),
-                          classesIds: [selectedClass?.id],
-                        ),
-                      );
-
-                      selectedClass!.studentIds.add(studentId);
-                      ClassRepo()
-                          .updateSingle(selectedClass!.id, selectedClass!);
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            actions: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      FontAwesomeIcons.graduationCap,
-                                      size: 60,
-                                    ),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    const Text(
-                                      'Student added Successfully!',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 16,
-                                    ),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: PrimaryButton(
-                                          title: "Done",
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).pop();
-                                          }),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          );
-                        },
-                      );
-                    });
-                  }
-                },
-              ),
+            Expanded(
+              child: SecondaryButton(
+                  title: "Discard",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
             ),
-            const SizedBox(height: 42),
+            const SizedBox(
+              width: 16,
+            ),
+            Expanded(
+                child: PrimaryButton(
+                    title: "Save Changes",
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        widget.student.name =
+                            _formController.controller("fullName").text.trim();
+                        widget.student.email =
+                            _formController.controller("email").text.trim();
+                        widget.student.gender = selectedGender!;
+                        widget.student.dateOfBirth =
+                            _formController.controller("dateOfBirth").text;
+                        widget.student.phoneNumber =
+                            _formController.controller("phoneNumber").text;
+                        widget.student.parentPhoneNumber = _formController
+                            .controller("parentPhoneNumber")
+                            .text;
+                        await AppUserRepo()
+                            .updateSingle(widget.student.id, widget.student);
+                        Navigator.pop(context);
+                      }
+                    })),
           ],
         ),
       ),
