@@ -58,58 +58,55 @@ class ClassManagementScreen extends StatelessWidget {
                                   isTeacher: true),
                             )),
                       )
-                    : Expanded(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.add_circle_outline_outlined,
-                                  color: Color(0xffE1E1E1),
-                                  size: 80,
-                                ),
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                Text(
-                                  'Get Started',
+                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.add_circle_outline_outlined,
+                                color: Color(0xffE1E1E1),
+                                size: 80,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                'Get Started',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              //
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                  'It’s seems like you haven’t created any classes yet.',
                                   textAlign: TextAlign.center,
                                   style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                                //
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                Text(
-                                    'It’s seems like you haven’t created any classes yet.',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium),
-                                //
-                                const SizedBox(
-                                  height: 16,
-                                ),
-                                //
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: PrimaryButton(
-                                      title: "Create Class",
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute<void>(
-                                            builder: (BuildContext context) =>
-                                                const CreateClassScreen(),
-                                          ),
-                                        );
-                                      }),
-                                )
-                                //
-                              ],
-                            ),
+                                      Theme.of(context).textTheme.bodyMedium),
+                              //
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              //
+                              SizedBox(
+                                width: double.infinity,
+                                child: PrimaryButton(
+                                    title: "Create Class",
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute<void>(
+                                          builder: (BuildContext context) =>
+                                              const CreateClassScreen(),
+                                        ),
+                                      );
+                                    }),
+                              )
+                              //
+                            ],
                           ),
                         ),
                       ),

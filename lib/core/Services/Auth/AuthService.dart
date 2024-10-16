@@ -2,27 +2,45 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/utils/SnackBar/snackbar.helper.dart';
+import '../Contexter/contexter.service.dart';
+import '../Error Handling/error_handling.service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<String?> signUpWithEmailAndPassword({
-    required String email,
-    required String password,
+    required String newEmail,
+    required String newPassword,
+    required String currentPassword,
     required BuildContext context,
   }) async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+      User? originalUser;
+
+      if (_auth.currentUser != null) {
+        originalUser = _auth.currentUser;
+      }
+      UserCredential newUser = await _auth.createUserWithEmailAndPassword(
+        email: newEmail,
+        password: newPassword,
       );
-      return userCredential.user!.uid;
+
+      await _auth.signOut();
+      print("Orginal User ${originalUser!.email}");
+      if (originalUser != null) {
+        await _auth.signInWithEmailAndPassword(
+            email: originalUser.email!, password: currentPassword);
+        print('Re-signed in original user');
+      } else {
+        print('No original user found');
+      }
+      return newUser.user?.uid;
     } catch (e) {
+      // Show an error message if something goes wrong
       SnackbarHelper.showTemplated(context,
           content: Text('Error: ${e.toString()}'), title: 'Signup Error');
-      return null;
     }
+    return null;
   }
 
   Future<User?> signInWithEmailAndPassword(
@@ -69,5 +87,33 @@ class AuthService {
     } catch (e) {
       print('Sign out failed: $e');
     }
+  }
+
+  //t2 ReAuthenticate
+  Future<UserCredential?> reAuthenticate(String password) async {
+    try {
+      User? user = _auth.currentUser;
+      print("Debugggg1 ${user!.email}");
+      print("Debugggg2 ${password}");
+
+      UserCredential? userCredential = await user?.reauthenticateWithCredential(
+        EmailAuthProvider.credential(email: user.email!, password: password),
+      );
+      print("Debugggg ${userCredential}");
+      return userCredential;
+    } catch (e, s) {
+      ErrorHandlingService.handle(e, "FBEmailAuth/reAuthenticate",
+          stackTrace: s);
+      SnackbarHelper.showTemplated(
+        Contexter.currentContext,
+        title: "You have a wrong password",
+        backgroundColor: Theme.of(Contexter.currentContext).colorScheme.error,
+        titleStyle: TextStyle(
+          color: Theme.of(Contexter.currentContext).colorScheme.onError,
+        ),
+      );
+      return null;
+    }
+    return null;
   }
 }

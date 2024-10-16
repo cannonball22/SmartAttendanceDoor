@@ -134,173 +134,109 @@ class StudentDetailsScreen extends ConsumerWidget {
             const SizedBox(
               height: 16,
             ),
-            FutureBuilder(
-                future: getClasses(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading data'));
-                    }
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Email:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    student.email,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Gender:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    student.gender.name,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Date of Birth:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    student.dateOfBirth,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Phone Number:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    student.phoneNumber,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Parent Phone Number:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    student.parentPhoneNumber ?? "",
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Class:',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          snapshot.data!
-                                              .map((schoolClass) =>
-                                                  schoolClass!.name)
-                                              .join(
-                                                  student.classesIds!.length > 1
-                                                      ? ', '
-                                                      : ''),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Email:',
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      );
-                    }
-                    return const Center(
-                      child: Text(
-                        'No students available',
                       ),
-                    );
-                  }
-                  return const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                })
+                      Expanded(
+                        child: Text(
+                          student.email,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Gender:',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          student.gender.name,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Date of Birth:',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          student.dateOfBirth,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Phone Number:',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          student.phoneNumber,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Parent Phone Number:',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          student.parentPhoneNumber ?? "",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),

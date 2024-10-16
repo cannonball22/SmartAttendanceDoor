@@ -67,7 +67,7 @@ class ClassDetailsScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,8 +255,8 @@ class ClassDetailsScreen extends ConsumerWidget {
                     return const Center(child: Text('Error loading students'));
                   }
                   if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    return SingleChildScrollView(
-                        child: Column(
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: List.generate(
                         snapshot.data!.length,
                         (index) => StudentsCard(
@@ -276,7 +276,7 @@ class ClassDetailsScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    ));
+                    );
                   }
                   return const Center(
                     child: Text(

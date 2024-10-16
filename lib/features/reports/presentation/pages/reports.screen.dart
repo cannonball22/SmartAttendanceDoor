@@ -99,11 +99,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   int countDaysExcludingFridays(DateTime startDate, DateTime endDate) {
     if (startDate.isAfter(endDate)) {
-      throw ArgumentError('startDate must be before endDate');
+      throw ArgumentError('startDate must be before or equal to endDate');
     }
 
     int count = 0;
     DateTime date = startDate;
+    endDate = endDate.subtract(const Duration(days: 1));
 
     while (date.isBefore(endDate.add(const Duration(days: 1)))) {
       if (date.weekday != DateTime.friday) {
@@ -178,21 +179,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
 
     for (Class? currentClass in classes) {
-      if (currentClass == null) continue; // Skip null classes
+      if (currentClass == null) continue;
 
-      final double attendancePercentage =
-          (attendanceSnapshot.isEmpty || currentClass == null)
-              ? 0
-              : (countAttendanceByClassId(attendanceSnapshot, currentClass) /
-                      countDaysExcludingFridays(
-                        currentClass.startSemesterDate,
-                        DateTime.now().isAfter(currentClass.endSemesterDate)
-                            ? currentClass.endSemesterDate
-                            : DateTime.now(),
-                      ) *
-                      100)
-                  .truncateToDouble();
+      final double attendancePercentage = (attendanceSnapshot.isEmpty)
+          ? 0
+          : (countAttendanceByClassId(attendanceSnapshot, currentClass) /
+                  countDaysExcludingFridays(
+                    currentClass.startSemesterDate,
+                    DateTime.now().isAfter(currentClass.endSemesterDate)
+                        ? currentClass.endSemesterDate
+                        : DateTime.now(),
+                  ) *
+                  100)
+              .truncateToDouble();
 
+      print("Attendance Percentage: $attendancePercentage");
       attendanceReport.add(
         AttendanceReport(
           classId: currentClass.id,
@@ -247,158 +248,188 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 field: "userRole", value: UserRole.student.index)
           ]),
           builder: (context, studentsSnapshot) {
-            if (studentsSnapshot.connectionState == ConnectionState.done &&
-                studentsSnapshot.hasData &&
-                studentsSnapshot.data != null &&
-                studentsSnapshot.data!.isNotEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: DropDownMenu<AppUser>(
-                            hintText: "Select Student",
-                            value: selectedStudent,
-                            items: studentsSnapshot.data!
-                                .map(
-                                  (studentItem) => DropdownMenuItem<AppUser>(
-                                    value: studentItem,
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundImage: studentItem
-                                                      ?.imageUrl !=
-                                                  null
-                                              ? NetworkImage(
-                                                  studentItem!.imageUrl!)
-                                              : const AssetImage(
-                                                      'assets/images/default_avatar.png')
-                                                  as ImageProvider,
-                                          radius: 24,
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Text(
-                                          studentItem!.name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
-                                      ],
+            if (studentsSnapshot.connectionState == ConnectionState.done) {
+              if (studentsSnapshot.hasData &&
+                  studentsSnapshot.data != null &&
+                  studentsSnapshot.data!.isNotEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: DropDownMenu<AppUser>(
+                              hintText: "Select Student",
+                              value: selectedStudent,
+                              items: studentsSnapshot.data!
+                                  .map(
+                                    (studentItem) => DropdownMenuItem<AppUser>(
+                                      value: studentItem,
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundImage: studentItem
+                                                        ?.imageUrl !=
+                                                    null
+                                                ? NetworkImage(
+                                                    studentItem!.imageUrl!)
+                                                : const AssetImage(
+                                                        'assets/images/default_avatar.png')
+                                                    as ImageProvider,
+                                            radius: 24,
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(
+                                            studentItem!.name,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (AppUser? newValue) {
-                              setState(() {
-                                selectedStudent = newValue;
-                              });
-                            },
+                                  )
+                                  .toList(),
+                              onChanged: (AppUser? newValue) {
+                                setState(() {
+                                  selectedStudent = newValue;
+                                  attendanceReport.clear();
+                                });
+                              },
+                            ),
                           ),
+                        ],
+                      ),
+                      selectedStudent == null
+                          ? Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.insert_chart_outlined,
+                                    color: Color(0xffE1E1E1),
+                                    size: 80,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'View Reports',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Select a Student from the dropdown list to view Reports information.',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : FutureBuilder(
+                              future: AttendanceRepo().readAllWhere([
+                                QueryCondition.equals(
+                                    field: "studentId",
+                                    value: selectedStudent!.id)
+                              ]),
+                              builder: (context, attendanceSnapshot) {
+                                if (attendanceSnapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  if (attendanceSnapshot.hasError) {
+                                    return const Center(
+                                      child: Text("Error loading attendance!"),
+                                    );
+                                  }
+                                  if (!attendanceSnapshot.hasData ||
+                                      attendanceSnapshot.data == null ||
+                                      attendanceSnapshot.data!.isEmpty) {
+                                    return const Center(
+                                      child: Text(
+                                          "No available attendance records for this student"),
+                                    );
+                                  }
+                                  if (attendanceSnapshot.hasData) {
+                                    Set<String> classIdsSet = {};
+                                    for (var record
+                                        in attendanceSnapshot.data!) {
+                                      if (record is Attendance) {
+                                        classIdsSet.add(record.classId);
+                                      }
+                                    }
+                                    return FutureBuilder(
+                                        future: readAllClasses(classIdsSet),
+                                        builder: (context, classesSnapshot) {
+                                          if (classesSnapshot.connectionState ==
+                                              ConnectionState.done) {
+                                            if (classesSnapshot.hasError) {
+                                              return const Text(
+                                                  "Error Loading Data");
+                                            }
+                                            if (classesSnapshot.hasData) {
+                                              generateAttendanceReports(
+                                                  classesSnapshot.data,
+                                                  attendanceSnapshot.data);
+                                              return SingleChildScrollView(
+                                                child: Column(
+                                                  children: List.generate(
+                                                    attendanceReport.length,
+                                                    (index) =>
+                                                        ReportSummaryCard(
+                                                      attendanceReport:
+                                                          attendanceReport[
+                                                              index],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          }
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        });
+                                  }
+                                }
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                            )
+                    ],
+                  ),
+                );
+              } else {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Get Started',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
+                        //
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        Text('It’s seems like you don’t have any students yet.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium),
                       ],
                     ),
-                    selectedStudent == null
-                        ? Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.insert_chart_outlined,
-                                  color: Color(0xffE1E1E1),
-                                  size: 80,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'View Reports',
-                                  textAlign: TextAlign.center,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Select a Student from the dropdown list to view Reports information.',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          )
-                        : FutureBuilder(
-                            future: AttendanceRepo().readAllWhere([
-                              QueryCondition.equals(
-                                  field: "studentId",
-                                  value: selectedStudent!.id)
-                            ]),
-                            builder: (context, attendanceSnapshot) {
-                              if (attendanceSnapshot.connectionState ==
-                                  ConnectionState.done) {
-                                if (attendanceSnapshot.hasError) {
-                                  return const Center(
-                                    child: Text("Error loading attendance!"),
-                                  );
-                                }
-                                if (!attendanceSnapshot.hasData ||
-                                    attendanceSnapshot.data == null ||
-                                    attendanceSnapshot.data!.isEmpty) {
-                                  return const Center(
-                                    child: Text(
-                                        "No available attendance records for this student"),
-                                  );
-                                }
-                                if (attendanceSnapshot.hasData) {
-                                  Set<String> classIdsSet = {};
-                                  for (var record in attendanceSnapshot.data!) {
-                                    if (record is Attendance) {
-                                      classIdsSet.add(record.classId);
-                                    }
-                                  }
-
-                                  return FutureBuilder(
-                                      future: readAllClasses(classIdsSet),
-                                      builder: (context, classesSnapshot) {
-                                        if (classesSnapshot.connectionState ==
-                                            ConnectionState.done) {
-                                          if (classesSnapshot.hasError) {
-                                            return const Text(
-                                                "Error Loading Data");
-                                          }
-                                          if (classesSnapshot.hasData) {
-                                            generateAttendanceReports(
-                                                classesSnapshot.data,
-                                                attendanceSnapshot.data);
-                                            return Column(
-                                              children: List.generate(
-                                                attendanceReport.length,
-                                                (index) => ReportSummaryCard(
-                                                  attendanceReport:
-                                                      attendanceReport[index],
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      });
-                                }
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                          )
-                  ],
-                ),
-              );
+                  ),
+                );
+              }
             }
             return const Center(
               child: CircularProgressIndicator(),
