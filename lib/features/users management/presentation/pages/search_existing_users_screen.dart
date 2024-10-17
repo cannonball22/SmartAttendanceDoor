@@ -1,14 +1,15 @@
 //t2 Core Packages Imports
 import 'package:flutter/material.dart';
 import 'package:smart_attendance_door/Data/Model/Class/Class.model.dart';
-import 'package:smart_attendance_door/Data/Repositories/class.repo.dart';
-import 'package:smart_attendance_door/core/widgets/primary_button.dart';
-import 'package:smart_attendance_door/core/widgets/students_card_list.dart';
 
+import '../../../../Data/Model/App User/app_user.model.dart';
 import '../../../../Data/Model/Shared/user_role.enum.dart';
+import '../../../../Data/Repositories/class.repo.dart';
 import '../../../../Data/Repositories/user.repo.dart';
 import '../../../../core/Providers/src/condition_model.dart';
 import '../../../../core/widgets/drop_down_menu.dart';
+import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/students_card_list.dart';
 
 //t2 Dependencies Imports
 //t3 Services
@@ -92,166 +93,150 @@ class _SearchExistingUserState extends State<SearchExistingUser> {
       body: FutureBuilder(
         future: AppUserRepo().readAllWhere([
           QueryCondition.equals(
-              field: "userRole", value: UserRole.student.index)
+              field: "userRole", value: UserRole.student.index),
         ]),
         builder: (context, studentSnapshot) {
           if (studentSnapshot.connectionState == ConnectionState.done &&
               studentSnapshot.hasData) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: FutureBuilder(
-                future: ClassRepo().readAll(),
-                builder: (context, classesSnapshot) {
-                  if (classesSnapshot.connectionState == ConnectionState.done) {
-                    if (classesSnapshot.hasError) {
-                      return const Center(
-                        child: Text("Error Fetching classes"),
-                      );
-                    }
-                    if (classesSnapshot.hasData) {
-                      return Column(
-                        children: List.generate(
-                          studentSnapshot.data!.length,
-                          (index) => StudentsCard(
-                            student: studentSnapshot.data![index]!,
-                            trailing: IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text(
-                                        'Choose a Class',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      content: Form(
-                                        key: _formKey,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            DropDownMenu<Class?>(
-                                              hintText: "Select Class",
-                                              labelText: "",
-                                              value: selectedClass,
-                                              items: List.generate(
-                                                classesSnapshot.data!.length,
-                                                (index) => DropdownMenuItem(
-                                                  value: classesSnapshot
-                                                      .data![index],
-                                                  child: Text(
-                                                    classesSnapshot
-                                                        .data![index]!.name,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  ),
-                                                ),
-                                              ),
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    selectedClass == null) {
-                                                  return "Please enter student's class";
-                                                }
-                                                return null;
-                                              },
-                                              onChanged: (Class? newValue) {
-                                                selectedClass = newValue;
-                                              },
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Row(
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    backgroundColor:
-                                                        const Color(0xFFF3F3F3),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                  ),
-                                                  child: const Text("Discard"),
-                                                ),
-                                                const SizedBox(width: 16),
-                                                PrimaryButton(
-                                                  title: "Add Student",
-                                                  onPressed: () async {
-                                                    if (_formKey.currentState!
-                                                        .validate()) {
-                                                      selectedClass?.studentIds
-                                                          .add(studentSnapshot
-                                                              .data![index]!
-                                                              .id);
-                                                      studentSnapshot
-                                                          .data![index]!
-                                                          .classesIds
-                                                          ?.add(selectedClass!
-                                                              .id);
-                                                      await AppUserRepo()
-                                                          .updateSingle(
-                                                              studentSnapshot
-                                                                  .data![index]!
-                                                                  .id,
-                                                              studentSnapshot
-                                                                      .data![
-                                                                  index]!);
-                                                      ClassRepo().updateSingle(
-                                                          selectedClass!.id,
-                                                          selectedClass!);
-                                                      selectedClass = null;
-                                                      Navigator.of(context)
-                                                          .pop(); // Close the dialog
-                                                    }
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              icon: const Icon(Icons.add_box_outlined),
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
-              ),
+              child: _buildClassList(context, studentSnapshot),
             );
           }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );
     //!SECTION
   }
 
-  @override
-  void dispose() {
-    //SECTION - Disposable variables
-    //!SECTION
-    super.dispose();
+  Widget _buildClassList(
+      BuildContext context, AsyncSnapshot<List<AppUser?>?> studentSnapshot) {
+    return FutureBuilder(
+      future: ClassRepo().readAll(),
+      builder: (context, classesSnapshot) {
+        if (classesSnapshot.connectionState == ConnectionState.done) {
+          if (classesSnapshot.hasError) {
+            return const Center(child: Text("Error Fetching classes"));
+          }
+          if (classesSnapshot.hasData) {
+            return Column(
+              children: List.generate(
+                studentSnapshot.data!.length,
+                (index) => _buildStudentCard(
+                    context,
+                    studentSnapshot.data![index]!,
+                    classesSnapshot.data!,
+                    index),
+              ),
+            );
+          }
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  Widget _buildStudentCard(
+      BuildContext context, AppUser student, List<Class?> classes, int index) {
+    return StudentsCard(
+      student: student,
+      trailing: IconButton(
+        onPressed: () =>
+            _showClassSelectionDialog(context, student, classes, index),
+        icon: const Icon(Icons.add_box_outlined),
+      ),
+    );
+  }
+
+  void _showClassSelectionDialog(
+      BuildContext context, AppUser student, List<Class?> classes, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Choose a Class',
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildClassDropdown(classes),
+                const SizedBox(height: 16),
+                _buildDialogActions(context, student, index),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildClassDropdown(List<Class?> classes) {
+    return DropDownMenu<Class?>(
+      hintText: "Select Class",
+      labelText: "",
+      value: selectedClass,
+      items: List.generate(
+        classes.length,
+        (index) => DropdownMenuItem(
+          value: classes[index],
+          child: Text(
+            classes[index]!.name,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || selectedClass == null) {
+          return "Please enter student's class";
+        }
+        return null;
+      },
+      onChanged: (Class? newValue) {
+        selectedClass = newValue;
+      },
+    );
+  }
+
+  Row _buildDialogActions(BuildContext context, AppUser student, int index) {
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.all(8),
+            backgroundColor: const Color(0xFFF3F3F3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text("Discard"),
+        ),
+        const SizedBox(width: 16),
+        PrimaryButton(
+          title: "Add Student",
+          onPressed: () async {
+            if (_formKey.currentState!.validate()) {
+              selectedClass?.studentIds.add(student.id);
+              student.classesIds?.add(selectedClass!.id);
+              await AppUserRepo().updateSingle(student.id, student);
+              await ClassRepo().updateSingle(selectedClass!.id, selectedClass!);
+              selectedClass = null;
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+      ],
+    );
   }
 }
